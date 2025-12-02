@@ -13,7 +13,10 @@ public class FinanceController(FotballContext context) : ControllerBase
     
     // TODO:
     // - GET finance (økonomisk status)
+    [HttpGet]
+    public async 
     // - PUT/POST for å oppdatere finance
+    [HttpPost]
     // - Eget endpoint for lån
     // - Evt. eget endpoint for kjøp (oppdatere MoneyLeft, MoneySpent, NumberOfPurchases)
 }

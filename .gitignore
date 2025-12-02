@@ -1,5 +1,15 @@
+# macOS
 .DS_Store
-.DS_Store
-.DS_Store
-FootballAPI/.DS_Store
-.DS_Store
+
+# ASP.NET build
+bin/
+obj/
+*.db-shm
+*.db-wal
+
+# VS Code
+.vscode/
+
+# Node
+node_modules/
+dist/
