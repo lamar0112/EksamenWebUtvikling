@@ -4,7 +4,7 @@ using FootballAPI.Context;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddDbContext<FotballPlayersContext>(
+builder.Services.AddDbContext<FotballContext>(
     options => options.UseSqlite("Data Source=Database/SportsWorld.db")
 );
 

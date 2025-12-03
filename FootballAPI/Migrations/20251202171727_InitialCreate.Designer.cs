@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FootballAPI.Migrations
 {
-    [DbContext(typeof(FotballPlayersContext))]
-    [Migration("20251201201403_InitialCreate")]
+    [DbContext(typeof(FotballContext))]
+    [Migration("20251202171727_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
