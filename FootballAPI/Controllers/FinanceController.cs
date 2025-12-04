@@ -42,7 +42,7 @@ public FinanceController(FotballContext dbContext)
         {
             dbContext.Finances.Add(finance);
         await dbContext.SaveChangesAsync();
-        return Created(); 
+        return Created();
         }
         catch
         {
@@ -50,7 +50,7 @@ public FinanceController(FotballContext dbContext)
         }
          
     }
-    
+   
     [HttpPut]
     public async Task<IActionResult> Put(Finance finance)
     {
