@@ -1,4 +1,6 @@
-{
+
+
+
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "target": "ES2022",
@@ -25,4 +27,4 @@
     "noUncheckedSideEffectImports": true
   },
   "include": ["src"]
-}
+
