@@ -5,18 +5,38 @@ using FootballAPI.Models;
 
 namespace FootballAPI.Controllers;
 
+// localhost:x/api/"navnet til controlleren"
 [ApiController]
 [Route("api/[controller]")]
-public class FinanceController(FotballContext context) : ControllerBase
+public class FinanceController : ControllerBase
 {
 
-    
-    // TODO:
-    // - GET finance (økonomisk status)
-    [HttpGet]
-    public async 
+private readonly FotballContext dbContext;
+
+
+public FinanceController(FotballContext dbContext)
+    {
+        this.dbContext = dbContext;
+    }
+        // - GET finance (økonomisk status)
+        [HttpGet]
+        public IActionResult GetFinance()
+    {
+        try
+        {
+            var getFinance= dbContext.Finances.ToList();
+         return Ok(getFinance);
+        }
+        catch
+        {
+            return StatusCode(500);
+        }
+         
+    }
     // - PUT/POST for å oppdatere finance
-    [HttpPost]
+    
+
+
     // - Eget endpoint for lån
     // - Evt. eget endpoint for kjøp (oppdatere MoneyLeft, MoneySpent, NumberOfPurchases)
 }
