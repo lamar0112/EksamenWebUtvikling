@@ -1,47 +1,58 @@
 import { Link } from "react-router-dom";
 
 const HomePage = () => {
-    return (
-        <main className="p-4 max-w-4xl mx-auto">
-            <h1 className="text-2xl font-bold mb-4">SportsWorld – Admin</h1>
-            <p className="mb-4">
-                Dette er adminløsningen for kjøp og administrasjon av fotballspillere
-                og stadioner (venues).
+  return (
+    <main className="min-h-[calc(100vh-3.5rem)] bg-slate-950 text-slate-100">
+      <div className="relative h-[calc(100vh-3.5rem)] overflow-hidden">
+        {/* Bakgrunnsgradient */}
+        <div className="absolute inset-0 -z-10">
+          <div className="absolute inset-0 h-full w-full [background:radial-gradient(125%_125%_at_50%_0%,#020617_30%,#1d4ed8_70%,#8b5cf6_100%)]" />
+        </div>
+
+        {/* Innhold */}
+        <section className="relative z-10 flex h-full flex-col items-center justify-center px-4">
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.3em] text-sky-300">
+              SportsWorld Football
             </p>
 
-            <section className="grid gap-4 md:grid-cols-3">
-                <article className="border rounded p-3">
-                    <h2 className="font-semibold mb-2">Athletes</h2>
-                    <p className="text-sm mb-2">
-                        Se, registrer og rediger alle potensielle utøvere.
-                    </p>
-                    <Link to="/athletes" className="text-blue-700 underline text-sm">
-                        Gå til Athletes-siden
-                    </Link>
-                </article>
+            <h1 className="mb-5 text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
+              Administrer{" "}
+              <span className="text-sky-300">spillere, venues</span> og{" "}
+              <span className="text-emerald-300">økonomi</span>
+            </h1>
 
-                <article className="border rounded p-3">
-                    <h2 className="font-semibold mb-2">Venues</h2>
-                    <p className="text-sm mb-2">
-                        Administrer venues for arrangementene.
-                    </p>
-                    <Link to="/venues" className="text-blue-700 underline text-sm">
-                        Gå til Venues-siden
-                    </Link>
-                </article>
+            <p className="mx-auto mb-7 max-w-2xl text-sm sm:text-base text-slate-200">
+              En enkel admin-løsning for å registrere fotballspillere, holde
+              oversikt over stadioner og følge klubbens økonomi – utviklet som
+              del av DS3103-eksamen.
+            </p>
 
-                <article className="border rounded p-3">
-                    <h2 className="font-semibold mb-2">Dashboard</h2>
-                    <p className="text-sm mb-2">
-                        Få oversikt over økonomi og kjøp utøvere.
-                    </p>
-                    <Link to="/dashboard" className="text-blue-700 underline text-sm">
-                        Gå til Dashboard
-                    </Link>
-                </article>
-            </section>
-        </main>
-    );
+            <div className="flex flex-wrap justify-center gap-3">
+              <Link
+                to="/dashboard"
+                className="rounded-lg bg-sky-400 px-6 py-2.5 text-sm font-semibold text-slate-950 shadow-md hover:bg-sky-300"
+              >
+                Gå til Dashboard
+              </Link>
+              <Link
+                to="/athletes"
+                className="rounded-lg border border-slate-300/50 bg-slate-900/70 px-6 py-2.5 text-sm font-semibold text-slate-100 hover:bg-slate-800/90"
+              >
+                Administrer Athletes
+              </Link>
+              <Link
+                to="/venues"
+                className="rounded-lg border border-purple-400/60 bg-purple-950/60 px-6 py-2.5 text-sm font-semibold text-slate-100 hover:bg-purple-900/80"
+              >
+                Administrer Venues
+              </Link>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  );
 };
 
 export default HomePage;

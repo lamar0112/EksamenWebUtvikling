@@ -5,52 +5,61 @@ using FootballAPI.Models;
 
 namespace FootballAPI.Controllers;
 
-// localhost:x/api/"navnet til controlleren"
 [ApiController]
 [Route("api/[controller]")]
 public class FinanceController : ControllerBase
 {
+    private readonly FotballContext dbContext;
 
-private readonly FotballContext dbContext;
-
-
-public FinanceController(FotballContext dbContext)
+    public FinanceController(FotballContext dbContext)
     {
         this.dbContext = dbContext;
     }
-        // - GET finance (økonomisk status)
-        [HttpGet]
-        public IActionResult GetFinance()
+
+    // -----------------------------
+    // GET: api/finance
+    // Always returns ONE finance row
+    // -----------------------------
+    [HttpGet]
+    public IActionResult GetFinance()
     {
         try
         {
-            var getFinance= dbContext.Finances.ToList();
-         return Ok(getFinance);
+            var finance = dbContext.Finances.FirstOrDefault();
+            if (finance == null)
+                return NotFound("Finance row not found");
+
+            return Ok(finance);
         }
         catch
         {
             return StatusCode(500);
         }
-         
     }
-    // - PUT/POST for å oppdatere finance
 
+    // -----------------------------
+    // POST: api/finance
+    // Creates the finance row (ONLY ONCE)
+    // -----------------------------
     [HttpPost]
-    public async Task<ActionResult> Post (Finance finance)
+    public async Task<IActionResult> Post(Finance finance)
     {
         try
         {
             dbContext.Finances.Add(finance);
-        await dbContext.SaveChangesAsync();
-        return Created();
+            await dbContext.SaveChangesAsync();
+            return Created();
         }
         catch
         {
-            return StatusCode (500);
+            return StatusCode(500);
         }
-         
     }
-   
+
+    // -----------------------------
+    // PUT: api/finance
+    // Updates the existing row
+    // -----------------------------
     [HttpPut]
     public async Task<IActionResult> Put(Finance finance)
     {
@@ -58,45 +67,89 @@ public FinanceController(FotballContext dbContext)
         {
             dbContext.Entry(finance).State = EntityState.Modified;
             await dbContext.SaveChangesAsync();
+
             return NoContent();
         }
         catch
         {
-            return StatusCode (500);
+            return StatusCode(500);
         }
     }
-          
-         // endpoint for å søke lån og øke summen selskapet allerede har i finance raden.
-          [HttpPost("loan")]
 
-          // Model biding er nå aktivert for loan endpoint, og gjør json(javascript object notation) data til et objekt. 
-          public async Task <IActionResult> Loan (LoanRequest request)
+    // -----------------------------
+    // POST: api/finance/loan
+    // Adds money to MoneyLeft
+    // -----------------------------
+    [HttpPost("loan")]
+    public async Task<IActionResult> Loan(LoanRequest request)
     {
-        // metode som validerer om input, sørge for at summen er større en null og positive tall
-        // sikrer at økonomien ikke oppdateres av hva som helst
-         if (request == null || request.LoanAmount <= 0)
-          {
-            return BadRequest ("Låne summen må være større en 0");
-          }  
+        if (request == null || request.LoanAmount <= 0)
+            return BadRequest("Loan amount must be greater than 0.");
 
-          // innhenter finance raden fra databasen/ sportsworld sin økonomi
-          var finance = await dbContext.Finances.FirstOrDefaultAsync();
-          if (finance == null)
-        {
-            return NotFound ("Fant ikke finace raden");
-        }
-         // VIKTIG!!
-         // dette er selve logikken, brukeren kan nå legge til et nytt beløp og beløpet blir regristert
+        var finance = await dbContext.Finances.FirstOrDefaultAsync();
+        if (finance == null)
+            return NotFound("Finance row missing.");
+
         finance.MoneyLeft += request.LoanAmount;
 
-        // nye total summen blir permanent/lagret i databasen 
         await dbContext.SaveChangesAsync();
-        // først retunerer det oppdatert finance objekt også forteller frontend at nå kan beløpet vises til brukeren umiddelbart 
-        return Ok (finance);
+
+        return Ok(finance);
     }
 
-         
+    // -----------------------------
+    // POST: api/finance/buy
+    // Buy a player and update finance
+    // -----------------------------
+    [HttpPost("buy")]
+    public async Task<IActionResult> BuyPlayer(BuyRequest request)
+    {
+        var athlete = await dbContext.Athletes.FindAsync(request.AthleteId);
+        var finance = await dbContext.Finances.FirstOrDefaultAsync();
 
-    // - Eget endpoint for lån
-    // - Evt. eget endpoint for kjøp (oppdatere MoneyLeft, MoneySpent, NumberOfPurchases)
+        if (athlete == null)
+            return NotFound("Athlete not found");
+        if (finance == null)
+            return NotFound("Finance not found");
+
+        if (athlete.Price > finance.MoneyLeft)
+            return BadRequest("Not enough money");
+
+        // Update athlete status
+        athlete.PurchaseStatus = true;
+
+        // Update finance
+        finance.MoneyLeft -= athlete.Price;
+        finance.MoneySpent += athlete.Price;
+        finance.NumberOfPurchases++;
+
+        await dbContext.SaveChangesAsync();
+
+        // return clean DTO
+        return Ok(new FinanceBuyDto
+        {
+            MoneyLeft = finance.MoneyLeft,
+            MoneySpent = finance.MoneySpent,
+            NumberOfPurchases = finance.NumberOfPurchases
+        });
+    }
+
+    // -------- DTO CLASSES ---------
+
+    public class LoanRequest
+    {
+        public decimal LoanAmount { get; set; }
+    }
+
+    public class BuyRequest
+    {
+        public int AthleteId { get; set; }
+    }
+
+    public class FinanceBuyDto
+    {
+        public decimal MoneyLeft { get; set; }
+        public decimal MoneySpent { get; set; }
+        public int NumberOfPurchases { get; set; }
+    }
 }

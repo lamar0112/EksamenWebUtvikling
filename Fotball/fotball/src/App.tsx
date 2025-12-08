@@ -1,7 +1,7 @@
 import AppRouting from "./routing/AppRouting";
 
-function App() {
+const App = () => {
   return <AppRouting />;
-}
+};
 
 export default App;

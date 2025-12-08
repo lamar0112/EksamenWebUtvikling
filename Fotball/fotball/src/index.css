@@ -1,1 +1,23 @@
 @import "tailwindcss";
+
+/* Enkel global stil – resten gjøres med utility-klasser i komponentene */
+:root {
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background-color: #020617; /* slate-950 */
+  color: #e5e7eb;            /* slate-200 */
+}
+
+a {
+  text-decoration: none;
+}

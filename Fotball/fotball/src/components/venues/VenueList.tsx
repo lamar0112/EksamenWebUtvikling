@@ -1,32 +1,54 @@
 import { useState } from "react";
+import type IVenue from "../../interfaces/IVenue";
 import venueService from "../../services/venueService";
 import VenueItem from "./VenueItem";
-import type IVenue from "../../interfaces/IVenue";
 
 const VenueList = () => {
-    const [venues, setVenues] = useState<IVenue[]>([]);
+  const [venues, setVenues] = useState<IVenue[]>([]);
 
-    const loadVenues = async () => {
-        const response = await venueService.getAllVenues();
-        if (response.success && response.data) setVenues(response.data);
-    };
+  const load = async () => {
+    const response = await venueService.getAllVenues();
+    if (response.success && response.data) {
+      setVenues(response.data);
+    } else {
+      alert("Kunne ikke hente venues");
+    }
+  };
 
-    return (
-        <>
-            <button
-                onClick={loadVenues}
-                className="px-3 py-1 bg-blue-600 text-white mb-4"
-            >
-                Hent Venues
-            </button>
+  const handleDelete = async (id: number) => {
+    const ok = confirm("Er du sikker på at du vil slette denne venue?");
+    if (!ok) return;
 
-            <section className="grid grid-cols-12 gap-4">
-                {venues.map((v, i) => (
-                    <VenueItem key={i} venue={v} />
-                ))}
-            </section>
-        </>
-    );
+    const response = await venueService.deleteVenue(id);
+    if (response.success) {
+      setVenues((prev) => prev.filter((v) => v.id !== id));
+    } else {
+      alert("Kunne ikke slette venue");
+    }
+  };
+
+  return (
+    <div className="space-y-3">
+      <button
+        onClick={load}
+        className="rounded-lg bg-purple-400 px-4 py-2 text-sm font-semibold text-slate-950 shadow hover:bg-purple-300"
+      >
+        Hent Venues
+      </button>
+
+      {venues.length === 0 ? (
+        <p className="text-sm text-slate-400">
+          Ingen venues lastet inn. Trykk “Hent Venues”.
+        </p>
+      ) : (
+        <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {venues.map((v) => (
+            <VenueItem key={v.id} venue={v} onDelete={handleDelete} />
+          ))}
+        </section>
+      )}
+    </div>
+  );
 };
 
 export default VenueList;

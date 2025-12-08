@@ -1,34 +1,127 @@
 import { useState } from "react";
 import type IVenue from "../../interfaces/IVenue";
 import venueService from "../../services/venueService";
+import imageUploadService from "../../services/imageUploadService";
 
 const VenueFormAdd = () => {
-    const [venue, setVenue] = useState<IVenue>({
-        id: 0,
-        name: "",
-        capacity: 0,
-        image: ""
-    });
+  const [venue, setVenue] = useState<IVenue>({
+    id: 0,
+    name: "",
+    capacity: 0,
+    image: "",
+  });
 
-    const update = (e: any) =>
-        setVenue({ ...venue, [e.target.name]: e.target.value });
+  const [isUploading, setIsUploading] = useState(false);
 
-    const save = async () => {
-        const response = await venueService.postVenue(venue);
-        if (response.success) alert("Venue lagret");
-    };
+  const update = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setVenue({ ...venue, [e.target.name]: e.target.value });
 
-    return (
-        <section className="border p-4 rounded mb-4">
-            <input className="border p-2 w-full mb-2" name="name" placeholder="Navn" onChange={update} />
-            <input className="border p-2 w-full mb-2" name="capacity" type="number" placeholder="Kapasitet" onChange={update} />
-            <input className="border p-2 w-full mb-2" name="image" placeholder="Bilde-filnavn" onChange={update} />
-            
-            <button className="px-3 py-1 bg-green-600 text-white" onClick={save}>
-                Lagre Venue
-            </button>
-        </section>
-    );
+  const handleFileChange = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+
+    const file = e.target.files[0];
+
+    setIsUploading(true);
+    const response = await imageUploadService.uploadImage(file);
+    setIsUploading(false);
+
+    if (response.success) {
+      setVenue((prev) => ({ ...prev, image: file.name }));
+      alert("Bilde lastet opp!");
+    } else {
+      alert("Kunne ikke laste opp bilde");
+    }
+  };
+
+  const save = async () => {
+    if (venue.name.trim() === "") {
+      alert("Navn må fylles ut");
+      return;
+    }
+
+    const response = await venueService.postVenue(venue);
+    if (response.success) {
+      alert("Venue lagret!");
+      setVenue({ id: 0, name: "", capacity: 0, image: "" });
+    } else {
+      alert("Kunne ikke lagre venue");
+    }
+  };
+
+  return (
+    <section className="rounded-xl border border-slate-800 bg-slate-900/70 p-6 shadow-lg">
+      <h2 className="mb-4 text-lg font-semibold text-white">Legg til Venue</h2>
+
+      <div className="grid gap-4 md:grid-cols-3">
+        <div className="space-y-1">
+          <label className="block text-xs font-medium text-slate-400">
+            Navn
+          </label>
+          <input
+            name="name"
+            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 focus:border-purple-400 focus:ring-1 focus:ring-purple-400"
+            placeholder="Stadionnavn"
+            value={venue.name}
+            onChange={update}
+          />
+        </div>
+
+        <div className="space-y-1">
+          <label className="block text-xs font-medium text-slate-400">
+            Kapasitet
+          </label>
+          <input
+            type="number"
+            name="capacity"
+            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 focus:border-purple-400 focus:ring-1 focus:ring-purple-400"
+            placeholder="Antall tilskuere"
+            value={venue.capacity || ""}
+            onChange={update}
+          />
+        </div>
+
+        <div className="space-y-1">
+          <label className="block text-xs font-medium text-slate-400">
+            Bilde (filnavn)
+          </label>
+          <input
+            name="image"
+            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 focus:border-purple-400 focus:ring-1 focus:ring-purple-400"
+            placeholder="f.eks stadium1.png"
+            value={venue.image}
+            onChange={update}
+          />
+          <p className="mt-1 text-[10px] text-slate-500">
+            Fylles automatisk når du laster opp et bilde.
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-4 space-y-2">
+        <label className="block text-xs font-medium text-slate-400">
+          Last opp bilde
+        </label>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          className="block w-full text-xs text-slate-200 file:mr-3 file:rounded-md file:border-0 file:bg-slate-800 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-slate-100 hover:file:bg-slate-700"
+        />
+        {isUploading && (
+          <p className="text-[11px] text-sky-300">Laster opp bilde…</p>
+        )}
+      </div>
+
+      <button
+        onClick={save}
+        className="mt-4 rounded-lg bg-purple-400 px-5 py-2 text-sm font-semibold text-slate-950 shadow hover:bg-purple-300"
+      >
+        Lagre Venue
+      </button>
+    </section>
+  );
 };
 
 export default VenueFormAdd;
