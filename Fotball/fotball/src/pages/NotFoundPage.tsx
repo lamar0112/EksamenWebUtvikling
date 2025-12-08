@@ -1,10 +1,10 @@
 const NotFoundPage = () => {
     return (
-        <section className="p-4">
-            <h1 className="text-2xl font-bold">Side ikke funnet</h1>
-            <p>Siden du prøvde å åpne eksisterer ikke.</p>
-        </section>
-    )
-}
+        <main className="p-4 max-w-3xl mx-auto">
+            <h1 className="text-2xl font-bold mb-2">404 – Side ikke funnet</h1>
+            <p>Denne siden finnes ikke i løsningen.</p>
+        </main>
+    );
+};
 
 export default NotFoundPage;

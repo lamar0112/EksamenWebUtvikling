@@ -1,11 +1,13 @@
+// src/routing/AppRouting.tsx
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import HomePage from "../pages/HomePage";
+
 import AdminAthletesPage from "../pages/AdminAthletesPage";
 import RegisterAthletePage from "../pages/RegisterAthletePage";
 import AthleteEditPage from "../pages/AthleteEditPage";
 
-Import VenuePage
+import VenuePage from "../pages/VenuePage";
 import RegisterVenuePage from "../pages/RegisterVenuePage";
 import VenueEditPage from "../pages/VenueEditPage";
 
@@ -14,8 +16,6 @@ import NotFoundPage from "../pages/NotFoundPage";
 
 import MainHeader from "../components/layout/MainHeader";
 import MainFooter from "../components/layout/MainFooter";
-import VenuesPage from "../pages/VenuePage";
-import VenuePage from "../pages/VenuePage";
 
 const AppRouting = () => {
     return (
@@ -29,12 +29,12 @@ const AppRouting = () => {
                 <Route path="/athletes/register" element={<RegisterAthletePage />} />
                 <Route path="/athletes/edit/:id" element={<AthleteEditPage />} />
 
-                <Route path="/venues" element={<VenuesPage />} />
+                <Route path="/venues" element={<VenuePage />} />
                 <Route path="/venues/register" element={<RegisterVenuePage />} />
                 <Route path="/venues/edit/:id" element={<VenueEditPage />} />
 
                 <Route path="/dashboard" element={<DashboardPage />} />
-                
+
                 <Route path="*" element={<NotFoundPage />} />
             </Routes>
 
