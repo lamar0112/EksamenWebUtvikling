@@ -13,6 +13,7 @@ public class VenueController(FotballContext context) : ControllerBase
     [HttpGet]
     public async Task<ActionResult<List<Venue>>> Get()
     {
+        
         try
         {
             List<Venue> venues = await context.Venues.ToListAsync();
