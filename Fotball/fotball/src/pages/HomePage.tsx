@@ -17,9 +17,8 @@ const HomePage = () => {
             </p>
 
             <h1 className="mb-5 text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
-              Administrer{" "}
-              <span className="text-sky-300">spillere, venues</span> og{" "}
-              <span className="text-emerald-300">økonomi</span>
+              Administrer <span className="text-sky-300">spillere, venues</span>{" "}
+              og <span className="text-emerald-300">økonomi</span>
             </h1>
 
             <p className="mx-auto mb-7 max-w-2xl text-sm sm:text-base text-slate-200">
