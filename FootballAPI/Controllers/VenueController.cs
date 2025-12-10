@@ -5,18 +5,30 @@ using FootballAPI.Models;
 
 namespace FootballAPI.Controllers;
 
+// START: controller for Venue (CRUD)
 [ApiController]
 [Route("api/[controller]")]
-public class VenueController(FotballContext context) : ControllerBase
+public class VenueController : ControllerBase
 {
-    // GET alle venues
+    // START: felt for database-kontekst
+    private readonly FotballContext _context;
+    // SLUTT: felt for database-kontekst
+
+    // START: konstruktør som får inn kontekst fra rammeverket
+    public VenueController(FotballContext context)
+    {
+        _context = context;
+    }
+    // SLUTT: konstruktør som får inn kontekst fra rammeverket
+
+    // START: GET alle venues
+    // api/venue
     [HttpGet]
     public async Task<ActionResult<List<Venue>>> Get()
     {
-        
         try
         {
-            List<Venue> venues = await context.Venues.ToListAsync();
+            List<Venue> venues = await _context.Venues.ToListAsync();
             return Ok(venues);
         }
         catch
@@ -24,14 +36,16 @@ public class VenueController(FotballContext context) : ControllerBase
             return StatusCode(500);
         }
     }
+    // SLUTT: GET alle venues
 
-    // GET venue med id
+    // START: GET venue med id
+    // api/venue/3 for eksempel
     [HttpGet("{id}")]
     public async Task<ActionResult<Venue>> Get(int id)
     {
         try
         {
-            Venue? venue = await context.Venues.FindAsync(id);
+            Venue? venue = await _context.Venues.FindAsync(id);
 
             if (venue != null)
             {
@@ -47,15 +61,17 @@ public class VenueController(FotballContext context) : ControllerBase
             return StatusCode(500);
         }
     }
+    // SLUTT: GET venue med id
 
-    // POST (opprette ny venue)
+    // START: POST (opprette ny venue)
+    // api/venue
     [HttpPost]
     public async Task<ActionResult> Post(Venue newVenue)
     {
         try
         {
-            context.Venues.Add(newVenue);
-            await context.SaveChangesAsync();
+            _context.Venues.Add(newVenue);
+            await _context.SaveChangesAsync();
             return Created(); // 201 Created
         }
         catch
@@ -63,15 +79,17 @@ public class VenueController(FotballContext context) : ControllerBase
             return StatusCode(500);
         }
     }
+    // SLUTT: POST (opprette ny venue)
 
-    // PUT (oppdatere venue)
+    // START: PUT (oppdatere venue)
+    // api/venue
     [HttpPut]
     public async Task<IActionResult> Put(Venue editedVenue)
     {
         try
         {
-            context.Entry(editedVenue).State = EntityState.Modified;
-            await context.SaveChangesAsync();
+            _context.Entry(editedVenue).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
             return NoContent(); // 204
         }
         catch
@@ -79,22 +97,24 @@ public class VenueController(FotballContext context) : ControllerBase
             return StatusCode(500);
         }
     }
+    // SLUTT: PUT (oppdatere venue)
 
-    // DELETE (slette venue)
+    // START: DELETE (slette venue)
+    // api/venue/3 for eksempel
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
         try
         {
-            Venue? venue = await context.Venues.FindAsync(id);
+            Venue? venue = await _context.Venues.FindAsync(id);
 
             if (venue == null)
             {
                 return NotFound();
             }
 
-            context.Venues.Remove(venue);
-            await context.SaveChangesAsync();
+            _context.Venues.Remove(venue);
+            await _context.SaveChangesAsync();
             return NoContent(); // 204
         }
         catch
@@ -102,4 +122,6 @@ public class VenueController(FotballContext context) : ControllerBase
             return StatusCode(500);
         }
     }
+    // SLUTT: DELETE (slette venue)
 }
+// SLUTT: controller for Venue

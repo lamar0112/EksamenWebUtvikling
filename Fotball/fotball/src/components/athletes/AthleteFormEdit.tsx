@@ -1,91 +1,101 @@
-import { useEffect, useState, type ChangeEvent } from "react";
-import { useParams } from "react-router-dom";
+// START: AthleteFormEdit – skjema for å redigere en athlete
 import type IAthlete from "../../interfaces/IAthlete";
-import athleteService from "../../services/athleteService";
 
-const AthleteFormEdit = () => {
-  const { id } = useParams();
-  const [athlete, setAthlete] = useState<IAthlete | null>(null);
-
-  useEffect(() => {
-    load();
-  }, []);
-
-  const load = async () => {
-    const response = await athleteService.getAthleteById(Number(id));
-    if (response.success && response.data) setAthlete(response.data);
-  };
-
-  const update = (e: ChangeEvent<HTMLInputElement>) => {
-    if (!athlete) return;
-    const { name, value } = e.target;
-    setAthlete({
-      ...athlete,
-      [name]: name === "price" ? Number(value) : value,
-    });
-  };
-
-  const save = async () => {
-    if (!athlete) return;
-    const response = await athleteService.putAthlete(athlete);
-    if (response.success) alert("Athlete oppdatert");
-  };
-
-  if (!athlete) return <p>Laster…</p>;
-
+const AthleteFormEdit = ({
+  athlete,
+  onChange,
+  onSave,
+}: {
+  athlete: IAthlete;
+  onChange: (field: string, value: string | number) => void;
+  onSave: () => void;
+}) => {
   return (
-    <section className="border border-slate-800 bg-slate-900/70 p-4 rounded-md max-w-md mx-auto">
-      <div className="mb-3">
-        <label className="block mb-1 text-sm text-slate-200">Navn</label>
-        <input
-          className="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100"
-          name="name"
-          value={athlete.name}
-          onChange={update}
-        />
-      </div>
+    <section className="rounded-xl border border-slate-800 bg-slate-900/70 p-6 shadow-lg">
+      {/* START: overskrift */}
+      <h2 className="mb-4 text-lg font-semibold text-white">Rediger Athlete</h2>
+      {/* SLUTT: overskrift */}
 
-      <div className="mb-3">
-        <label className="block mb-1 text-sm text-slate-200">Kjønn</label>
-        <input
-          className="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100"
-          name="gender"
-          value={athlete.gender}
-          onChange={update}
-        />
-      </div>
+      {/* START: inputfelter for redigering */}
+      <div className="grid gap-4 md:grid-cols-4">
+        {/* Navn */}
+        <div className="space-y-1">
+          <label
+            htmlFor="edit-athlete-name"
+            className="block text-xs font-medium text-slate-400"
+          >
+            Navn
+          </label>
+          <input
+            id="edit-athlete-name"
+            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100"
+            value={athlete.name}
+            onChange={(e) => onChange("name", e.target.value)}
+          />
+        </div>
 
-      <div className="mb-3">
-        <label className="block mb-1 text-sm text-slate-200">Pris</label>
-        <input
-          className="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100"
-          name="price"
-          type="number"
-          value={athlete.price}
-          onChange={update}
-        />
-      </div>
+        {/* Kjønn */}
+        <div className="space-y-1">
+          <label
+            htmlFor="edit-athlete-gender"
+            className="block text-xs font-medium text-slate-400"
+          >
+            Kjønn
+          </label>
+          <input
+            id="edit-athlete-gender"
+            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100"
+            value={athlete.gender}
+            onChange={(e) => onChange("gender", e.target.value)}
+          />
+        </div>
 
-      <div className="mb-3">
-        <label className="block mb-1 text-sm text-slate-200">
-          Filnavn på bilde
-        </label>
-        <input
-          className="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100"
-          name="image"
-          value={athlete.image}
-          onChange={update}
-        />
-      </div>
+        {/* Pris */}
+        <div className="space-y-1">
+          <label
+            htmlFor="edit-athlete-price"
+            className="block text-xs font-medium text-slate-400"
+          >
+            Pris
+          </label>
+          <input
+            id="edit-athlete-price"
+            type="number"
+            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100"
+            value={athlete.price}
+            onChange={(e) => onChange("price", Number(e.target.value))}
+          />
+        </div>
 
+        {/* Bilde (filnavn) */}
+        <div className="space-y-1">
+          <label
+            htmlFor="edit-athlete-image"
+            className="block text-xs font-medium text-slate-400"
+          >
+            Bilde (filnavn)
+          </label>
+          <input
+            id="edit-athlete-image"
+            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100"
+            value={athlete.image}
+            onChange={(e) => onChange("image", e.target.value)}
+          />
+        </div>
+      </div>
+      {/* SLUTT: inputfelter */}
+
+      {/* START: lagre-knapp */}
       <button
-        className="mt-1 inline-flex items-center rounded-md bg-sky-500 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-sky-400"
-        onClick={save}
+        onClick={onSave}
+        className="mt-4 rounded-lg bg-emerald-400 px-5 py-2 text-sm font-semibold text-slate-950 hover:bg-emerald-300"
       >
         Lagre endringer
       </button>
+      {/* SLUTT: lagre-knapp */}
     </section>
   );
 };
 
 export default AthleteFormEdit;
+// SLUTT: AthleteFormEdit

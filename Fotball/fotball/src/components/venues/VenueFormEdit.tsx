@@ -1,82 +1,85 @@
-import { useEffect, useState, type ChangeEvent } from "react";
-import { useParams } from "react-router-dom";
+// START: VenueFormEdit – skjema for å redigere en venue
 import type IVenue from "../../interfaces/IVenue";
-import venueService from "../../services/venueService";
 
-const VenueFormEdit = () => {
-  const { id } = useParams();
-  const [venue, setVenue] = useState<IVenue | null>(null);
-
-  useEffect(() => {
-    load();
-  }, []);
-
-  const load = async () => {
-    const response = await venueService.getVenueById(Number(id));
-    if (response.success && response.data) setVenue(response.data);
-  };
-
-  const update = (e: ChangeEvent<HTMLInputElement>) => {
-    if (!venue) return;
-    const { name, value } = e.target;
-
-    setVenue({
-      ...venue,
-      [name]: name === "capacity" ? Number(value) : value,
-    });
-  };
-
-  const save = async () => {
-    if (!venue) return;
-    const response = await venueService.putVenue(venue);
-    if (response.success) alert("Venue oppdatert");
-  };
-
-  if (!venue) return <p>Laster…</p>;
-
+const VenueFormEdit = ({
+  venue,
+  onChange,
+  onSave,
+}: {
+  venue: IVenue;
+  onChange: (field: string, value: string | number) => void;
+  onSave: () => void;
+}) => {
   return (
-    <section className="border border-slate-800 bg-slate-900/70 p-4 rounded-md max-w-md mx-auto">
-      <div className="mb-3">
-        <label className="block mb-1 text-sm text-slate-200">Navn</label>
-        <input
-          className="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100"
-          name="name"
-          value={venue.name}
-          onChange={update}
-        />
-      </div>
+    <section className="rounded-xl border border-slate-800 bg-slate-900/70 p-6 shadow-lg">
+      {/* START: overskrift */}
+      <h2 className="mb-4 text-lg font-semibold text-white">Rediger Venue</h2>
+      {/* SLUTT: overskrift */}
 
-      <div className="mb-3">
-        <label className="block mb-1 text-sm text-slate-200">Kapasitet</label>
-        <input
-          className="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100"
-          name="capacity"
-          type="number"
-          value={venue.capacity}
-          onChange={update}
-        />
-      </div>
+      {/* START: inputfelter for redigering */}
+      <div className="grid gap-4 md:grid-cols-3">
+        {/* Navn */}
+        <div className="space-y-1">
+          <label
+            htmlFor="edit-venue-name"
+            className="block text-xs font-medium text-slate-400"
+          >
+            Navn
+          </label>
+          <input
+            id="edit-venue-name"
+            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100"
+            value={venue.name}
+            onChange={(e) => onChange("name", e.target.value)}
+          />
+        </div>
 
-      <div className="mb-3">
-        <label className="block mb-1 text-sm text-slate-200">
-          Filnavn på bilde
-        </label>
-        <input
-          className="w-full rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100"
-          name="image"
-          value={venue.image}
-          onChange={update}
-        />
-      </div>
+        {/* Kapasitet */}
+        <div className="space-y-1">
+          <label
+            htmlFor="edit-venue-capacity"
+            className="block text-xs font-medium text-slate-400"
+          >
+            Kapasitet
+          </label>
+          <input
+            id="edit-venue-capacity"
+            type="number"
+            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100"
+            value={venue.capacity}
+            onChange={(e) => onChange("capacity", Number(e.target.value))}
+          />
+        </div>
 
+        {/* Bilde (filnavn) */}
+        <div className="space-y-1">
+          <label
+            htmlFor="edit-venue-image"
+            className="block text-xs font-medium text-slate-400"
+          >
+            Bilde (filnavn)
+          </label>
+          <input
+            id="edit-venue-image"
+            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100"
+            value={venue.image}
+            onChange={(e) => onChange("image", e.target.value)}
+          />
+        </div>
+      </div>
+      {/* SLUTT: inputfelter */}
+
+      {/* START: lagre-knapp */}
       <button
-        className="mt-1 inline-flex items-center rounded-md bg-sky-500 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-sky-400"
-        onClick={save}
+        onClick={onSave}
+        className="mt-4 rounded-lg bg-purple-400 px-5 py-2 text-sm font-semibold text-slate-950 hover:bg-purple-300"
       >
         Lagre endringer
       </button>
+      {/* SLUTT: lagre-knapp */}
     </section>
   );
 };
 
 export default VenueFormEdit;
+// SLUTT: VenueFormEdit

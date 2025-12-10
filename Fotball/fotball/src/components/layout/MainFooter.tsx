@@ -1,3 +1,4 @@
+// START: MainFooter – enkel bunntekst
 const MainFooter = () => {
   return (
     <footer className="border-t border-slate-800 bg-slate-950/95">
@@ -10,3 +11,4 @@ const MainFooter = () => {
 };
 
 export default MainFooter;
+// SLUTT: MainFooter

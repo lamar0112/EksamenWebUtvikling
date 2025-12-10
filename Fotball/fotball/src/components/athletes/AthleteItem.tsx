@@ -1,7 +1,7 @@
+// START: AthleteItem – kort for én enkelt athlete
 import type IAthlete from "../../interfaces/IAthlete";
 import { Link } from "react-router-dom";
 
-// Enkel presentasjonskomponent for én athlete.
 // onDelete kommer fra AthleteList og brukes for å slette spilleren.
 const AthleteItem = ({
   athlete,
@@ -12,6 +12,7 @@ const AthleteItem = ({
 }) => {
   return (
     <article className="flex flex-col justify-between rounded-lg border border-slate-800 bg-slate-950/60 p-4 shadow">
+      {/* START: tekst og bilde for spilleren */}
       <div>
         <h3 className="text-base font-semibold text-white">{athlete.name}</h3>
 
@@ -39,8 +40,9 @@ const AthleteItem = ({
           )}
         </p>
       </div>
+      {/* SLUTT: tekst og bilde for spilleren */}
 
-      {/* Knapper nederst på kortet */}
+      {/* START: knapper nederst på kortet */}
       <div className="mt-4 flex gap-2">
         <Link
           to={`/athletes/edit/${athlete.id}`}
@@ -56,8 +58,10 @@ const AthleteItem = ({
           Slett
         </button>
       </div>
+      {/* SLUTT: knapper nederst på kortet */}
     </article>
   );
 };
 
 export default AthleteItem;
+// SLUTT: AthleteItem

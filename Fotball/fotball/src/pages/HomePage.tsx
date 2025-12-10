@@ -1,15 +1,17 @@
+// START: HomePage – forside med intro og knapper til de viktigste sidene
 import { Link } from "react-router-dom";
 
 const HomePage = () => {
   return (
     <main className="min-h-[calc(100vh-3.5rem)] bg-slate-950 text-slate-100">
       <div className="relative h-[calc(100vh-3.5rem)] overflow-hidden">
-        {/* Bakgrunnsgradient */}
+        {/* START: bakgrunnsgradient for forsiden */}
         <div className="absolute inset-0 -z-10">
           <div className="absolute inset-0 h-full w-full [background:radial-gradient(125%_125%_at_50%_0%,#020617_30%,#1d4ed8_70%,#8b5cf6_100%)]" />
         </div>
+        {/* SLUTT: bakgrunnsgradient for forsiden */}
 
-        {/* Innhold */}
+        {/* START: innhold i midten av siden */}
         <section className="relative z-10 flex h-full flex-col items-center justify-center px-4">
           <div className="mx-auto max-w-3xl text-center">
             <p className="mb-3 text-xs font-semibold uppercase tracking-[0.3em] text-sky-300">
@@ -27,6 +29,7 @@ const HomePage = () => {
               del av DS3103-eksamen.
             </p>
 
+            {/* START: knapper til de viktigste sidene */}
             <div className="flex flex-wrap justify-center gap-3">
               <Link
                 to="/dashboard"
@@ -47,11 +50,14 @@ const HomePage = () => {
                 Administrer Venues
               </Link>
             </div>
+            {/* SLUTT: knapper til de viktigste sidene */}
           </div>
         </section>
+        {/* SLUTT: innhold i midten av siden */}
       </div>
     </main>
   );
 };
 
 export default HomePage;
+// SLUTT: HomePage

@@ -1,107 +1,92 @@
+// START: AthleteEditPage – side for å redigere en athlete
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import type IAthlete from "../interfaces/IAthlete";
 import athleteService from "../services/athleteService";
+import AthleteFormEdit from "../components/athletes/AthleteFormEdit";
 
 const AthleteEditPage = () => {
+  // START: henter id fra url og setter opp state
   const { id } = useParams();
   const [athlete, setAthlete] = useState<IAthlete | null>(null);
   const [loading, setLoading] = useState(true);
+  // SLUTT: henter id fra url og setter opp state
 
+  // START: laster data for valgt athlete
   useEffect(() => {
     const load = async () => {
+      if (!id) return;
+
       const response = await athleteService.getAthleteById(Number(id));
       if (response.success && response.data) {
         setAthlete(response.data);
       }
       setLoading(false);
     };
+
     load();
   }, [id]);
+  // SLUTT: laster data for valgt athlete
 
-  const update = (e: React.ChangeEvent<HTMLInputElement>) =>
-    athlete && setAthlete({ ...athlete, [e.target.name]: e.target.value });
+  // START: oppdaterer felter når brukeren skriver
+  const handleChange = (field: string, value: string | number) => {
+    if (!athlete) return;
 
-  const save = async () => {
+    setAthlete({
+      ...athlete,
+      [field]: field === "price" ? Number(value) : value,
+    });
+  };
+  // SLUTT: oppdaterer felter når brukeren skriver
+
+  // START: lagrer endringene via API
+  const handleSave = async () => {
     if (!athlete) return;
 
     const response = await athleteService.putAthlete(athlete);
     if (response.success) {
-      alert("Athlete oppdatert!");
+      alert("Athlete oppdatert");
     } else {
       alert("Feil ved lagring");
     }
   };
+  // SLUTT: lagrer endringene via API
 
-  if (loading) return <p className="text-slate-300 p-4">Laster spiller…</p>;
-  if (!athlete) return <p className="text-red-400 p-4">Fant ikke athlete</p>;
+  // START: enkel loading og feilhåndtering
+  if (loading) {
+    return <p className="p-4 text-slate-300">Laster spiller...</p>;
+  }
 
+  if (!athlete) {
+    return <p className="p-4 text-red-400">Fant ikke athlete</p>;
+  }
+  // SLUTT: enkel loading og feilhåndtering
+
+  // START: visning av side med skjema
   return (
     <main className="min-h-screen bg-slate-950 px-4 py-8 text-slate-100">
-      <section className="mx-auto max-w-4xl space-y-6">
+      <section className="mx-auto max-w-6xl space-y-6">
+        {/* START: overskrift og tekst */}
         <header>
           <h1 className="text-2xl font-bold">Rediger Athlete</h1>
           <p className="text-sm text-slate-400">
             Oppdater informasjonen for denne utøveren.
           </p>
         </header>
+        {/* SLUTT: overskrift og tekst */}
 
-        <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-6 shadow-lg">
-          <div className="grid gap-4 md:grid-cols-4">
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-slate-400">Navn</label>
-              <input
-                name="name"
-                value={athlete.name}
-                onChange={update}
-                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm"
-              />
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-slate-400">Kjønn</label>
-              <input
-                name="gender"
-                value={athlete.gender}
-                onChange={update}
-                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm"
-              />
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-slate-400">Pris</label>
-              <input
-                name="price"
-                type="number"
-                value={athlete.price}
-                onChange={update}
-                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm"
-              />
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-slate-400">
-                Bilde (filnavn)
-              </label>
-              <input
-                name="image"
-                value={athlete.image}
-                onChange={update}
-                className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm"
-              />
-            </div>
-          </div>
-
-          <button
-            onClick={save}
-            className="mt-4 rounded-lg bg-emerald-400 px-5 py-2 text-sm font-semibold text-slate-950 hover:bg-emerald-300"
-          >
-            Lagre endringer
-          </button>
-        </div>
+        {/* START: skjema-komponent for redigering */}
+        <AthleteFormEdit
+          athlete={athlete}
+          onChange={handleChange}
+          onSave={handleSave}
+        />
+        {/* SLUTT: skjema-komponent for redigering */}
       </section>
     </main>
   );
+  // SLUTT: visning av side med skjema
 };
 
 export default AthleteEditPage;
+// SLUTT: AthleteEditPage

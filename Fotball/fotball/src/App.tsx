@@ -1,3 +1,4 @@
+// START: App – kobler bare inn AppRouting
 import AppRouting from "./routing/AppRouting";
 
 const App = () => {
@@ -5,3 +6,4 @@ const App = () => {
 };
 
 export default App;
+// SLUTT: App

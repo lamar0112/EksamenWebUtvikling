@@ -1,8 +1,14 @@
+// ========================= START athleteService.ts =========================
+// Service for å snakke med AthleteController i backend.
+// Her samler vi alle HTTP-kall relatert til Athletes på ett sted.
+
 import axios from "axios";
 import type IAthlete from "../interfaces/IAthlete";
 
+// Grunn-URL til Athlete API-et
 const endpoint = "http://localhost:5163/api/athlete";
 
+// Enkle typer for svar fra API-et
 interface IResponseList {
   success: boolean;
   data: IAthlete[] | null;
@@ -17,6 +23,7 @@ interface IDefaultResponse {
   success: boolean;
 }
 
+// Henter alle athletes fra API-et (GET /api/athlete)
 const getAllAthletes = async (): Promise<IResponseList> => {
   try {
     const response = await axios.get(endpoint);
@@ -26,6 +33,7 @@ const getAllAthletes = async (): Promise<IResponseList> => {
   }
 };
 
+// Henter alle athletes som ikke er kjøpt (GET /api/athlete/unpurchased)
 const getUnpurchasedAthletes = async (): Promise<IResponseList> => {
   try {
     const response = await axios.get(`${endpoint}/unpurchased`);
@@ -35,6 +43,7 @@ const getUnpurchasedAthletes = async (): Promise<IResponseList> => {
   }
 };
 
+// Henter én athlete basert på id (GET /api/athlete/{id})
 const getAthleteById = async (id: number): Promise<IAthleteItemResponse> => {
   try {
     const response = await axios.get(`${endpoint}/${id}`);
@@ -44,6 +53,7 @@ const getAthleteById = async (id: number): Promise<IAthleteItemResponse> => {
   }
 };
 
+// Lager en ny athlete (POST /api/athlete)
 const postAthlete = async (athlete: IAthlete): Promise<IDefaultResponse> => {
   try {
     await axios.post(endpoint, athlete);
@@ -53,6 +63,7 @@ const postAthlete = async (athlete: IAthlete): Promise<IDefaultResponse> => {
   }
 };
 
+// Oppdaterer en athlete (PUT /api/athlete)
 const putAthlete = async (athlete: IAthlete): Promise<IDefaultResponse> => {
   try {
     await axios.put(endpoint, athlete);
@@ -62,6 +73,7 @@ const putAthlete = async (athlete: IAthlete): Promise<IDefaultResponse> => {
   }
 };
 
+// Sletter en athlete (DELETE /api/athlete/{id})
 const deleteAthlete = async (id: number): Promise<IDefaultResponse> => {
   try {
     await axios.delete(`${endpoint}/${id}`);
@@ -71,8 +83,8 @@ const deleteAthlete = async (id: number): Promise<IDefaultResponse> => {
   }
 };
 
-// NB: Denne kaller FinanceController /buy-endpointet.
-// Vi bruker Finance API her for å holde frontend enkel.
+// Kjøper en athlete (POST /api/finance/buy)
+// Her trenger ikke frontend å vite logikken, vi bare sender id til backend.
 const buyAthlete = async (id: number): Promise<IDefaultResponse> => {
   try {
     await axios.post("http://localhost:5163/api/finance/buy", {
@@ -84,6 +96,7 @@ const buyAthlete = async (id: number): Promise<IDefaultResponse> => {
   }
 };
 
+// Eksporterer alle metodene som ett objekt
 export default {
   getAllAthletes,
   getUnpurchasedAthletes,
@@ -93,3 +106,5 @@ export default {
   deleteAthlete,
   buyAthlete,
 };
+
+// ========================== SLUTT athleteService.ts =========================

@@ -1,3 +1,4 @@
+// START: NotFoundPage – vises når ruten ikke finnes
 import { Link } from "react-router-dom";
 
 const NotFoundPage = () => {
@@ -15,6 +16,7 @@ const NotFoundPage = () => {
           til oversikten.
         </p>
 
+        {/* START: knapper for å komme seg videre */}
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <Link
             to="/"
@@ -29,9 +31,11 @@ const NotFoundPage = () => {
             Gå til Dashboard
           </Link>
         </div>
+        {/* SLUTT: knapper for å komme seg videre */}
       </section>
     </main>
   );
 };
 
 export default NotFoundPage;
+// SLUTT: NotFoundPage
