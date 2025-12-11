@@ -1,8 +1,8 @@
-// START: AthleteItem – kort for én enkelt athlete
+// START: AthleteItem – kort som viser én athlete i listen
+
 import type IAthlete from "../../interfaces/IAthlete";
 import { Link } from "react-router-dom";
 
-// onDelete kommer fra AthleteList og brukes for å slette spilleren.
 const AthleteItem = ({
   athlete,
   onDelete,
@@ -11,8 +11,8 @@ const AthleteItem = ({
   onDelete: (id: number) => void;
 }) => {
   return (
-    <article className="flex flex-col justify-between rounded-lg border border-slate-800 bg-slate-950/60 p-4 shadow">
-      {/* START: tekst og bilde for spilleren */}
+    <article className="flex flex-col justify-between rounded-lg border border-slate-800 bg-slate-950/70 p-4 shadow">
+      {/* START: info om spilleren */}
       <div>
         <h3 className="text-base font-semibold text-white">{athlete.name}</h3>
 
@@ -25,9 +25,10 @@ const AthleteItem = ({
         )}
 
         <p className="mt-2 text-sm text-slate-300">Kjønn: {athlete.gender}</p>
+
         <p className="text-sm text-slate-300">
           Pris:{" "}
-          <span className="font-semibold text-emerald-400">
+          <span className="font-semibold text-emerald-300">
             {athlete.price.toLocaleString()} kr
           </span>
         </p>
@@ -40,16 +41,19 @@ const AthleteItem = ({
           )}
         </p>
       </div>
-      {/* SLUTT: tekst og bilde for spilleren */}
+      {/* SLUTT: info om spilleren */}
 
-      {/* START: knapper nederst på kortet */}
+      {/* START: knapper nederst */}
       <div className="mt-4 flex gap-2">
+        {/* Rediger */}
         <Link
           to={`/athletes/edit/${athlete.id}`}
           className="flex-1 rounded-lg bg-slate-800 px-3 py-1.5 text-center text-xs font-semibold text-slate-100 hover:bg-slate-700"
         >
           Rediger
         </Link>
+
+        {/* Slett */}
         <button
           type="button"
           onClick={() => onDelete(athlete.id)}
@@ -58,10 +62,11 @@ const AthleteItem = ({
           Slett
         </button>
       </div>
-      {/* SLUTT: knapper nederst på kortet */}
+      {/* SLUTT: knapper nederst */}
     </article>
   );
 };
 
 export default AthleteItem;
+
 // SLUTT: AthleteItem

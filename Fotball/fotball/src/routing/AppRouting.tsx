@@ -1,54 +1,59 @@
-// START: AppRouting – all routing for frontenden
+// START: AppRouting – oppsett av ruter for hele appen
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import HomePage from "../pages/HomePage";
 import AdminAthletesPage from "../pages/AdminAthletesPage";
-import AthleteEditPage from "../pages/AthleteEditPage";
 import RegisterAthletePage from "../pages/RegisterAthletePage";
-
-import VenuePage from "../pages/VenuePage";
+import AthleteEditPage from "../pages/AthleteEditPage";
 import RegisterVenuePage from "../pages/RegisterVenuePage";
-import VenueEditPage from "../pages/VenueEditPage";
-
 import DashboardPage from "../pages/DashboardPage";
 import NotFoundPage from "../pages/NotFoundPage";
 
 import MainHeader from "../components/layout/MainHeader";
 import MainFooter from "../components/layout/MainFooter";
+import VenueEditPage from "../pages/VenueEditPage";
+import VenuePage from "../pages/VenuePage";
 
 const AppRouting = () => {
   return (
     <BrowserRouter>
-      {/* START: felles header på alle sider */}
+      {/* START: felles header */}
       <MainHeader />
-      {/* SLUTT: felles header på alle sider */}
+      {/* SLUTT: felles header */}
 
-      {/* START: routes for alle sidene i løsningen */}
+      {/* START: hovedinnhold med ruter */}
       <Routes>
-        {/* Home */}
+        {/* START: forside */}
         <Route path="/" element={<HomePage />} />
+        {/* SLUTT: forside */}
 
-        {/* Athletes */}
+        {/* START: athletes – admin og registrering */}
         <Route path="/athletes" element={<AdminAthletesPage />} />
         <Route path="/athletes/register" element={<RegisterAthletePage />} />
         <Route path="/athletes/edit/:id" element={<AthleteEditPage />} />
+        {/* SLUTT: athletes – admin og registrering */}
 
-        {/* Venues */}
+        {/* START: venues – registrering/redigering */}
+
         <Route path="/venues" element={<VenuePage />} />
         <Route path="/venues/register" element={<RegisterVenuePage />} />
-        <Route path="/venues/edit/:id" element={<VenueEditPage />} />
+        <Route path="/venues/edit/:id" element={<VenueEditPage/>} />
 
-        {/* Dashboard */}
+        {/* SLUTT: venues – admin og registrering/redigering */}
+
+        {/* START: dashboard – økonomi, lån og kjøp av spillere */}
         <Route path="/dashboard" element={<DashboardPage />} />
+        {/* SLUTT: dashboard – økonomi, lån og kjøp av spillere */}
 
-        {/* 404 */}
+        {/* START: fallback-side hvis rute ikke finnes */}
         <Route path="*" element={<NotFoundPage />} />
+        {/* SLUTT: fallback-side hvis rute ikke finnes */}
       </Routes>
-      {/* SLUTT: routes for alle sidene i løsningen */}
+      {/* SLUTT: hovedinnhold med ruter */}
 
-      {/* START: felles footer på alle sider */}
+      {/* START: felles footer */}
       <MainFooter />
-      {/* SLUTT: felles footer på alle sider */}
+      {/* SLUTT: felles footer */}
     </BrowserRouter>
   );
 };

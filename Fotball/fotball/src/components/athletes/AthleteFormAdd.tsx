@@ -1,10 +1,12 @@
-import { useState } from "react";
+// START: AthleteFormAdd – skjema for å registrere ny athlete
+import { useState, type ChangeEvent } from "react";
 import type IAthlete from "../../interfaces/IAthlete";
 import athleteService from "../../services/athleteService";
 import imageUploadService from "../../services/imageUploadService";
+import FeedbackMessage from "../common/FeedbackMessage";
 
 const AthleteFormAdd = () => {
-  // START: state for athlete og opplasting
+  // START: state for ny athlete
   const [athlete, setAthlete] = useState<IAthlete>({
     id: 0,
     name: "",
@@ -13,20 +15,41 @@ const AthleteFormAdd = () => {
     image: "",
     purchaseStatus: false,
   });
+  // SLUTT: state for ny athlete
 
   const [isUploading, setIsUploading] = useState(false);
-  // SLUTT: state for athlete og opplasting
 
-  // START: oppdaterer tekst og tall-felt
-  const update = (e: React.ChangeEvent<HTMLInputElement>) =>
-    setAthlete({ ...athlete, [e.target.name]: e.target.value });
-  // SLUTT: oppdaterer tekst og tall-felt
+  const [feedbackMessage, setFeedbackMessage] = useState("");
+  const [feedbackType, setFeedbackType] = useState<"" | "success" | "error">(
+    ""
+  );
 
-  // START: håndtering av filopplasting til API
-  // dette bruker FormData og er litt mer avansert enn forelesningene, derfor kommentert
-  const handleFileChange = async (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  // START: nullstiller skjema etter suksess
+  const resetForm = () => {
+    setAthlete({
+      id: 0,
+      name: "",
+      gender: "",
+      price: 0,
+      image: "",
+      purchaseStatus: false,
+    });
+  };
+  // SLUTT: nullstiller skjema
+
+  // START: oppdaterer felter når bruker skriver
+  const update = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+
+    setAthlete((prev) => ({
+      ...prev,
+      [name]: name === "price" ? Number(value) : value,
+    }));
+  };
+  // SLUTT: oppdaterer felter
+
+  // START: filopplasting til API (ImageUploadController)
+  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
 
     const file = e.target.files[0];
@@ -36,113 +59,105 @@ const AthleteFormAdd = () => {
     setIsUploading(false);
 
     if (response.success) {
-      // lagrer kun filnavnet i image-feltet
       setAthlete((prev) => ({ ...prev, image: file.name }));
-      alert("Bilde lastet opp");
+      setFeedbackMessage("Bilde lastet opp.");
+      setFeedbackType("success");
     } else {
-      alert("Kunne ikke laste opp bilde");
+      setFeedbackMessage("Kunne ikke laste opp bilde.");
+      setFeedbackType("error");
     }
   };
-  // SLUTT: håndtering av filopplasting til API
+  // SLUTT: filopplasting
 
   // START: lagrer athlete via API
   const save = async () => {
     if (athlete.name.trim() === "" || athlete.gender.trim() === "") {
-      alert("Navn og kjønn må fylles ut");
+      setFeedbackMessage("Navn og kjønn må fylles ut.");
+      setFeedbackType("error");
       return;
     }
 
     const response = await athleteService.postAthlete(athlete);
+
     if (response.success) {
-      alert("Spiller lagt til");
-      setAthlete({
-        id: 0,
-        name: "",
-        gender: "",
-        price: 0,
-        image: "",
-        purchaseStatus: false,
-      });
+      setFeedbackMessage("Spiller lagt til.");
+      setFeedbackType("success");
+      resetForm();
     } else {
-      alert("Kunne ikke lagre athlete");
+      setFeedbackMessage("Kunne ikke lagre athlete.");
+      setFeedbackType("error");
     }
   };
   // SLUTT: lagrer athlete via API
 
   return (
     <section className="rounded-xl border border-slate-800 bg-slate-900/70 p-6 shadow-lg">
-      {/* START: overskrift for skjema */}
+      {/* START: overskrift */}
       <h2 className="mb-4 text-lg font-semibold text-white">
         Legg til ny Athlete
       </h2>
-      {/* SLUTT: overskrift for skjema */}
+      {/* SLUTT: overskrift */}
 
-      {/* START: inputfelt for navn, kjønn, pris og bilde-navn */}
-      <div className="grid gap-4 md:grid-cols-4">
+      {/* START: tilbakemelding (grønn / rød) */}
+      {feedbackType && (
+        <FeedbackMessage type={feedbackType} message={feedbackMessage} />
+      )}
+      {/* SLUTT: tilbakemelding */}
+
+      {/* START: input-felter */}
+      <div className="mt-4 grid gap-4 md:grid-cols-4">
+        {/* Navn */}
         <div className="space-y-1">
-          <label
-            htmlFor="athlete-name"
-            className="block text-xs font-medium text-slate-400"
-          >
+          <label className="block text-xs font-medium text-slate-400">
             Navn
           </label>
           <input
-            id="athlete-name"
-            name="name"
             className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 focus:border-sky-400 focus:ring-1 focus:ring-sky-400"
+            name="name"
             placeholder="Spillernavn"
             value={athlete.name}
             onChange={update}
           />
         </div>
 
+        {/* Kjønn */}
         <div className="space-y-1">
-          <label
-            htmlFor="athlete-gender"
-            className="block text-xs font-medium text-slate-400"
-          >
+          <label className="block text-xs font-medium text-slate-400">
             Kjønn
           </label>
           <input
-            id="athlete-gender"
-            name="gender"
             className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 focus:border-sky-400 focus:ring-1 focus:ring-sky-400"
+            name="gender"
             placeholder="Male / Female"
             value={athlete.gender}
             onChange={update}
           />
         </div>
 
+        {/* Pris */}
         <div className="space-y-1">
-          <label
-            htmlFor="athlete-price"
-            className="block text-xs font-medium text-slate-400"
-          >
+          <label className="block text-xs font-medium text-slate-400">
             Pris
           </label>
           <input
-            id="athlete-price"
             type="number"
-            name="price"
             className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 focus:border-sky-400 focus:ring-1 focus:ring-sky-400"
+            name="price"
             placeholder="Pris i kr"
             value={athlete.price || ""}
             onChange={update}
           />
         </div>
 
+        {/* Bilde (filnavn) */}
         <div className="space-y-1">
-          <label
-            htmlFor="athlete-image-name"
-            className="block text-xs font-medium text-slate-400"
-          >
+          <label className="block text-xs font-medium text-slate-400">
             Bilde (filnavn)
           </label>
           <input
-            id="athlete-image-name"
-            name="image"
             className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 focus:border-sky-400 focus:ring-1 focus:ring-sky-400"
-            placeholder="for eksempel spiller1.png"
+            name="image"
+            placeholder="f.eks spiller1.png"
             value={athlete.image}
             onChange={update}
           />
@@ -151,18 +166,14 @@ const AthleteFormAdd = () => {
           </p>
         </div>
       </div>
-      {/* SLUTT: inputfelt for navn, kjønn, pris og bilde-navn */}
+      {/* SLUTT: input-felter */}
 
-      {/* START: filopplasting for bilde */}
+      {/* START: filopplasting */}
       <div className="mt-4 space-y-2">
-        <label
-          htmlFor="athlete-image-file"
-          className="block text-xs font-medium text-slate-400"
-        >
+        <label className="block text-xs font-medium text-slate-400">
           Last opp bilde
         </label>
         <input
-          id="athlete-image-file"
           type="file"
           accept="image/*"
           onChange={handleFileChange}
@@ -172,11 +183,12 @@ const AthleteFormAdd = () => {
           <p className="text-[11px] text-sky-300">Laster opp bilde...</p>
         )}
       </div>
-      {/* SLUTT: filopplasting for bilde */}
+      {/* SLUTT: filopplasting */}
 
       {/* START: lagre-knapp */}
       <button
         onClick={save}
+        type="button"
         className="mt-4 rounded-lg bg-sky-400 px-5 py-2 text-sm font-semibold text-slate-950 shadow hover:bg-sky-300"
       >
         Lagre Athlete
@@ -187,3 +199,4 @@ const AthleteFormAdd = () => {
 };
 
 export default AthleteFormAdd;
+// SLUTT: AthleteFormAdd

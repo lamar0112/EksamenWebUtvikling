@@ -1,38 +1,51 @@
-import { useState } from "react";
+// START: VenueFormAdd – skjema for å registrere ny venue
+import { useState, type ChangeEvent } from "react";
 import type IVenue from "../../interfaces/IVenue";
 import venueService from "../../services/venueService";
 import imageUploadService from "../../services/imageUploadService";
+import FeedbackMessage from "../common/FeedbackMessage";
 
 const VenueFormAdd = () => {
-  // START: state for venue og opplasting
+  // START: state for ny venue
   const [venue, setVenue] = useState<IVenue>({
     id: 0,
     name: "",
     capacity: 0,
     image: "",
   });
+  // SLUTT: state for ny venue
 
   const [isUploading, setIsUploading] = useState(false);
-  // SLUTT: state for venue og opplasting
 
-  // START: oppdaterer tekst og tall-felt
-  const update = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+  const [feedbackMessage, setFeedbackMessage] = useState("");
+  const [feedbackType, setFeedbackType] = useState<"" | "success" | "error">(
+    ""
+  );
 
-    // litt ekstra: sørger for at capacity blir number og ikke string
-    // dette er enkel bruk av Number(), ikke noe avansert
+  // START: nullstiller skjema etter suksess
+  const resetForm = () => {
     setVenue({
-      ...venue,
-      [name]: name === "capacity" ? Number(value) : value,
+      id: 0,
+      name: "",
+      capacity: 0,
+      image: "",
     });
   };
-  // SLUTT: oppdaterer tekst og tall-felt
+  // SLUTT: nullstiller skjema
 
-  // START: håndtering av filopplasting til API
-  // samme prinsipp som i AthleteFormAdd, bruker FormData i service
-  const handleFileChange = async (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  // START: oppdaterer felter når bruker skriver
+  const update = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+
+    setVenue((prev) => ({
+      ...prev,
+      [name]: name === "capacity" ? Number(value) : value,
+    }));
+  };
+  // SLUTT: oppdaterer felter
+
+  // START: filopplasting til API (ImageUploadController)
+  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
 
     const file = e.target.files[0];
@@ -43,85 +56,90 @@ const VenueFormAdd = () => {
 
     if (response.success) {
       setVenue((prev) => ({ ...prev, image: file.name }));
-      alert("Bilde lastet opp");
+      setFeedbackMessage("Bilde lastet opp.");
+      setFeedbackType("success");
     } else {
-      alert("Kunne ikke laste opp bilde");
+      setFeedbackMessage("Kunne ikke laste opp bilde.");
+      setFeedbackType("error");
     }
   };
-  // SLUTT: håndtering av filopplasting til API
+  // SLUTT: filopplasting
 
   // START: lagrer venue via API
   const save = async () => {
-    if (venue.name.trim() === "") {
-      alert("Navn må fylles ut");
+    if (venue.name.trim() === "" || venue.capacity <= 0) {
+      setFeedbackMessage("Navn og kapasitet må fylles ut.");
+      setFeedbackType("error");
       return;
     }
 
     const response = await venueService.postVenue(venue);
+
     if (response.success) {
-      alert("Venue lagret");
-      setVenue({ id: 0, name: "", capacity: 0, image: "" });
+      setFeedbackMessage("Venue lagt til.");
+      setFeedbackType("success");
+      resetForm();
     } else {
-      alert("Kunne ikke lagre venue");
+      setFeedbackMessage("Kunne ikke lagre venue.");
+      setFeedbackType("error");
     }
   };
   // SLUTT: lagrer venue via API
 
   return (
     <section className="rounded-xl border border-slate-800 bg-slate-900/70 p-6 shadow-lg">
-      {/* START: overskrift for skjema */}
-      <h2 className="mb-4 text-lg font-semibold text-white">Legg til Venue</h2>
-      {/* SLUTT: overskrift for skjema */}
+      {/* START: overskrift */}
+      <h2 className="mb-4 text-lg font-semibold text-white">
+        Legg til ny Venue
+      </h2>
+      {/* SLUTT: overskrift */}
 
-      {/* START: inputfelt for navn, kapasitet og bilde-navn */}
-      <div className="grid gap-4 md:grid-cols-3">
+      {/* START: tilbakemelding (grønn / rød) */}
+      {feedbackType && (
+        <FeedbackMessage type={feedbackType} message={feedbackMessage} />
+      )}
+      {/* SLUTT: tilbakemelding */}
+
+      {/* START: input-felter */}
+      <div className="mt-4 grid gap-4 md:grid-cols-3">
+        {/* Navn */}
         <div className="space-y-1">
-          <label
-            htmlFor="venue-name"
-            className="block text-xs font-medium text-slate-400"
-          >
+          <label className="block text-xs font-medium text-slate-400">
             Navn
           </label>
           <input
-            id="venue-name"
+            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 focus:border-sky-400 focus:ring-1 focus:ring-sky-400"
             name="name"
-            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 focus:border-purple-400 focus:ring-1 focus:ring-purple-400"
             placeholder="Stadionnavn"
             value={venue.name}
             onChange={update}
           />
         </div>
 
+        {/* Kapasitet */}
         <div className="space-y-1">
-          <label
-            htmlFor="venue-capacity"
-            className="block text-xs font-medium text-slate-400"
-          >
+          <label className="block text-xs font-medium text-slate-400">
             Kapasitet
           </label>
           <input
-            id="venue-capacity"
             type="number"
+            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 focus:border-sky-400 focus:ring-1 focus:ring-sky-400"
             name="capacity"
-            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 focus:border-purple-400 focus:ring-1 focus:ring-purple-400"
-            placeholder="Antall tilskuere"
+            placeholder="Antall plasser"
             value={venue.capacity || ""}
             onChange={update}
           />
         </div>
 
+        {/* Bilde (filnavn) */}
         <div className="space-y-1">
-          <label
-            htmlFor="venue-image-name"
-            className="block text-xs font-medium text-slate-400"
-          >
+          <label className="block text-xs font-medium text-slate-400">
             Bilde (filnavn)
           </label>
           <input
-            id="venue-image-name"
+            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 focus:border-sky-400 focus:ring-1 focus:ring-sky-400"
             name="image"
-            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 focus:border-purple-400 focus:ring-1 focus:ring-purple-400"
-            placeholder="for eksempel stadium1.png"
+            placeholder="f.eks stadion1.png"
             value={venue.image}
             onChange={update}
           />
@@ -130,18 +148,14 @@ const VenueFormAdd = () => {
           </p>
         </div>
       </div>
-      {/* SLUTT: inputfelt for navn, kapasitet og bilde-navn */}
+      {/* SLUTT: input-felter */}
 
-      {/* START: filopplasting for bilde */}
+      {/* START: filopplasting */}
       <div className="mt-4 space-y-2">
-        <label
-          htmlFor="venue-image-file"
-          className="block text-xs font-medium text-slate-400"
-        >
+        <label className="block text-xs font-medium text-slate-400">
           Last opp bilde
         </label>
         <input
-          id="venue-image-file"
           type="file"
           accept="image/*"
           onChange={handleFileChange}
@@ -151,11 +165,12 @@ const VenueFormAdd = () => {
           <p className="text-[11px] text-sky-300">Laster opp bilde...</p>
         )}
       </div>
-      {/* SLUTT: filopplasting for bilde */}
+      {/* SLUTT: filopplasting */}
 
       {/* START: lagre-knapp */}
       <button
         onClick={save}
+        type="button"
         className="mt-4 rounded-lg bg-purple-400 px-5 py-2 text-sm font-semibold text-slate-950 shadow hover:bg-purple-300"
       >
         Lagre Venue
@@ -166,3 +181,4 @@ const VenueFormAdd = () => {
 };
 
 export default VenueFormAdd;
+// SLUTT: VenueFormAdd

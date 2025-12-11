@@ -1,18 +1,34 @@
+// START: DashboardComponent – økonomi, lån og kjøp av spillere
+
 import { useEffect, useState } from "react";
 import type IFinance from "../../interfaces/IFinance";
 import type IAthlete from "../../interfaces/IAthlete";
 import financeService from "../../services/financeService";
 import athleteService from "../../services/athleteService";
+import FeedbackMessage from "../common/FeedbackMessage";
 
 const DashboardComponent = () => {
-  // START: state for økonomi, lån og spillere
+  // START: state for økonomi, lån og tilgjengelige spillere
   const [finance, setFinance] = useState<IFinance | null>(null);
   const [loanAmount, setLoanAmount] = useState<number>(0);
   const [availableAthletes, setAvailableAthletes] = useState<IAthlete[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  // SLUTT: state for økonomi, lån og spillere
 
-  // START: henter økonomi og tilgjengelige spillere ved første visning
+  // Tilbakemelding til bruker (grønn / rød boks)
+  const [feedbackMessage, setFeedbackMessage] = useState("");
+  const [feedbackType, setFeedbackType] = useState<"" | "success" | "error">(
+    ""
+  );
+  // SLUTT: state for økonomi, lån og tilgjengelige spillere
+
+  // START: hjelpefunksjon for å vise tilbakemelding
+  const showFeedback = (message: string, type: "success" | "error") => {
+    setFeedbackMessage(message);
+    setFeedbackType(type);
+  };
+  // SLUTT: hjelpefunksjon for å vise tilbakemelding
+
+  // START: laster økonomi og ikke-kjøpte spillere ved første rendering
   useEffect(() => {
     const loadAll = async () => {
       await loadFinance();
@@ -22,34 +38,34 @@ const DashboardComponent = () => {
 
     loadAll();
   }, []);
-  // SLUTT: henter økonomi og tilgjengelige spillere ved første visning
+  // SLUTT: laster økonomi og ikke-kjøpte spillere
 
-  // START: funksjon for å hente økonomi
+  // START: henter økonomi fra API-et via financeService
   const loadFinance = async () => {
     const response = await financeService.getFinance();
     if (response.success && response.data) {
       setFinance(response.data);
     } else {
-      alert("Kunne ikke hente økonomi");
+      showFeedback("Kunne ikke hente økonomi.", "error");
     }
   };
-  // SLUTT: funksjon for å hente økonomi
+  // SLUTT: henter økonomi
 
-  // START: funksjon for å hente spillere som ikke er kjøpt
+  // START: henter alle ikke-kjøpte spillere fra API
   const loadAthletes = async () => {
     const response = await athleteService.getUnpurchasedAthletes();
     if (response.success && response.data) {
       setAvailableAthletes(response.data);
     } else {
-      alert("Kunne ikke hente spillere");
+      showFeedback("Kunne ikke hente spillere.", "error");
     }
   };
-  // SLUTT: funksjon for å hente spillere som ikke er kjøpt
+  // SLUTT: henter alle ikke-kjøpte spillere
 
-  // START: sender lånebeløpet til API
+  // START: sender lånebeløp til API-et
   const handleLoan = async () => {
     if (loanAmount <= 0) {
-      alert("Lånebeløpet må være større enn 0");
+      showFeedback("Lånebeløpet må være større enn 0.", "error");
       return;
     }
 
@@ -57,16 +73,17 @@ const DashboardComponent = () => {
     if (response.success && response.data) {
       setFinance(response.data);
       setLoanAmount(0);
+      showFeedback("Lån registrert.", "success");
     } else {
-      alert("Kunne ikke registrere lån");
+      showFeedback("Kunne ikke registrere lån.", "error");
     }
   };
-  // SLUTT: sender lånebeløpet til API
+  // SLUTT: sender lånebeløp
 
-  // START: kjøper en spiller via API
+  // START: kjøper en spiller
   const handleBuyAthlete = async (athlete: IAthlete) => {
     const ok = confirm(
-      "Vil du kjøpe " + athlete.name + " for " + athlete.price.toLocaleString() + " kr?"
+      `Vil du kjøpe ${athlete.name} for ${athlete.price.toLocaleString()} kr?`
     );
 
     if (!ok) return;
@@ -74,30 +91,41 @@ const DashboardComponent = () => {
     const response = await athleteService.buyAthlete(athlete.id);
 
     if (response.success) {
-      // henter oppdatert økonomi og spillere etter kjøp
       await loadFinance();
       await loadAthletes();
+      showFeedback(`Kjøpte ${athlete.name}.`, "success");
     } else {
-      alert("Kunne ikke kjøpe spiller");
+      showFeedback("Kunne ikke kjøpe spiller.", "error");
     }
   };
-  // SLUTT: kjøper en spiller via API
+  // SLUTT: kjøper en spiller
 
-  // START: enkel loading-visning
+  // START: loading-state
   if (isLoading || !finance) {
-    return <p className="text-sm text-slate-300">Laster økonomi...</p>;
+    return (
+      <section className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 shadow-lg">
+        <p className="text-sm text-slate-300">Laster dashboard-data...</p>
+      </section>
+    );
   }
-  // SLUTT: enkel loading-visning
+  // SLUTT: loading-state
 
-  // START: visning av dashboard
+  // START: selve layouten for dashboardet
   return (
     <section
       className="space-y-8"
-      aria-label="Dashboard for økonomi og kjøp av spillere"
+      aria-label="Dashboard for økonomi og spillerkjøp"
     >
-      {/* START: kort for økonomi */}
+      {/* Tilbakemelding øverst (grønn / rød) */}
+      {feedbackType && (
+        <FeedbackMessage type={feedbackType} message={feedbackMessage} />
+      )}
+
+      {/* Økonomi-kort */}
       <section className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 shadow-lg">
-        <h2 className="mb-4 text-xl font-semibold text-white">Klubbens økonomi</h2>
+        <h2 className="mb-4 text-xl font-semibold text-white">
+          Klubbens økonomi
+        </h2>
 
         <div className="grid gap-4 md:grid-cols-3">
           <div className="rounded-lg bg-slate-950/60 p-4">
@@ -122,83 +150,85 @@ const DashboardComponent = () => {
           </div>
         </div>
       </section>
-      {/* SLUTT: kort for økonomi */}
 
-      {/* START: kort for lån */}
+      {/* Lån-kort */}
       <section className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 shadow-lg">
         <h2 className="mb-4 text-lg font-semibold text-white">Ta opp lån</h2>
+
         <div className="flex flex-col gap-3 md:flex-row md:items-center">
-          <label
-            htmlFor="loan-amount"
-            className="text-xs font-medium text-slate-300"
-          >
-            Lånebeløp i kroner
-          </label>
-          <input
-            id="loan-amount"
-            type="number"
-            className="w-full rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-400 md:max-w-xs"
-            placeholder="Beløp i kroner, for eksempel 1000000"
-            value={loanAmount}
-            onChange={(e) => setLoanAmount(Number(e.target.value))}
-          />
+          <div className="flex-1">
+            <label
+              htmlFor="loanAmount"
+              className="mb-1 block text-xs font-medium text-slate-400"
+            >
+              Lånebeløp i kroner
+            </label>
+            <input
+              id="loanAmount"
+              type="number"
+              className="w-full rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-400"
+              placeholder="Beløp i kroner, f.eks. 1000000"
+              value={loanAmount || ""}
+              onChange={(e) => setLoanAmount(Number(e.target.value))}
+            />
+          </div>
+
           <button
             type="button"
             onClick={handleLoan}
-            className="inline-flex items-center justify-center rounded-lg bg-sky-400 px-5 py-2 text-sm font-semibold text-slate-950 shadow-md hover:bg-sky-300"
+            className="mt-1 inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-sky-400 to-blue-500 px-5 py-2 text-sm font-semibold text-slate-950 shadow-md hover:from-sky-300 hover:to-blue-400 md:mt-5"
           >
             Legg til lån
           </button>
         </div>
       </section>
-      {/* SLUTT: kort for lån */}
 
-      {/* START: kort for spillere som kan kjøpes */}
+      {/* Spillere som kan kjøpes */}
       <section className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 shadow-lg">
         <h2 className="mb-4 text-lg font-semibold text-white">Kjøp spillere</h2>
 
-        {availableAthletes.length === 0 && (
+        {availableAthletes.length === 0 ? (
           <p className="text-sm text-slate-400">
             Alle tilgjengelige spillere er allerede kjøpt.
           </p>
-        )}
-
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {availableAthletes.map((athlete) => (
-            <article
-              key={athlete.id}
-              className="flex flex-col justify-between rounded-lg border border-slate-800 bg-slate-950/70 p-4"
-            >
-              <div>
-                <h3 className="text-base font-semibold text-white">
-                  {athlete.name}
-                </h3>
-                <p className="text-xs text-slate-400">
-                  Kjønn: {athlete.gender}
-                </p>
-                <p className="mt-2 text-sm text-slate-200">
-                  Pris:{" "}
-                  <span className="font-semibold text-emerald-300">
-                    {athlete.price.toLocaleString()} kr
-                  </span>
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => handleBuyAthlete(athlete)}
-                className="mt-4 inline-flex items-center justify-center rounded-lg bg-emerald-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-emerald-300"
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {availableAthletes.map((athlete) => (
+              <article
+                key={athlete.id}
+                className="flex flex-col justify-between rounded-lg border border-slate-800 bg-slate-950/70 p-4"
               >
-                Kjøp spiller
-              </button>
-            </article>
-          ))}
-        </div>
+                <div>
+                  <h3 className="text-base font-semibold text-white">
+                    {athlete.name}
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    Kjønn: {athlete.gender}
+                  </p>
+                  <p className="mt-2 text-sm text-slate-200">
+                    Pris:{" "}
+                    <span className="font-semibold text-emerald-300">
+                      {athlete.price.toLocaleString()} kr
+                    </span>
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => handleBuyAthlete(athlete)}
+                  className="mt-4 inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-emerald-400 to-sky-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:from-emerald-300 hover:to-sky-300"
+                >
+                  Kjøp spiller
+                </button>
+              </article>
+            ))}
+          </div>
+        )}
       </section>
-      {/* SLUTT: kort for spillere som kan kjøpes */}
     </section>
   );
-  // SLUTT: visning av dashboard
+  // SLUTT: layout for dashboardet
 };
 
 export default DashboardComponent;
+// SLUTT: DashboardComponent
