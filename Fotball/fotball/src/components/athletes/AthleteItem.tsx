@@ -20,7 +20,8 @@ const AthleteItem = ({
           <img
             src={`http://localhost:5163/images/${athlete.image}`}
             alt={athlete.name}
-            className="mt-2 h-32 w-full rounded-md object-cover"
+            className="mt-2 h-40 w-full rounded-md bg-slate-900/40  object-contain p-2"
+            loading="lazy"
           />
         )}
 
