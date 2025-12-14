@@ -5,34 +5,27 @@ using FootballAPI.Models;
 
 namespace FootballAPI.Controllers;
 
-// START: controller for Finance (økonomi, lån og kjøp)
 [ApiController]
 [Route("api/[controller]")]
 public class FinanceController : ControllerBase
 {
-    // START: felt for database-kontekst
     private readonly FotballContext _context;
-    // SLUTT: felt for database-kontekst
 
-    // START: konstruktør
     public FinanceController(FotballContext context)
     {
         _context = context;
     }
-    // SLUTT: konstruktør
 
-    // START: GET: api/finance
-    // Henter alltid den ene raden med økonomi.
     [HttpGet]
-    public IActionResult GetFinance()
+    public async Task<IActionResult> GetFinance()
     {
         try
         {
-            Finance? finance = _context.Finances.FirstOrDefault();
+            Finance? finance = await _context.Finances.FirstOrDefaultAsync();
 
             if (finance == null)
             {
-                return NotFound("Finance row not found");
+                return NotFound("Finance row not found.");
             }
 
             return Ok(finance);
@@ -42,10 +35,7 @@ public class FinanceController : ControllerBase
             return StatusCode(500);
         }
     }
-    // SLUTT: GET: api/finance
 
-    // START: POST: api/finance
-    // Oppretter finance-raden (trengs normalt bare en gang).
     [HttpPost]
     public async Task<IActionResult> Post(Finance finance)
     {
@@ -53,17 +43,14 @@ public class FinanceController : ControllerBase
         {
             _context.Finances.Add(finance);
             await _context.SaveChangesAsync();
-            return Created();
+            return Created("", finance);
         }
         catch
         {
             return StatusCode(500);
         }
     }
-    // SLUTT: POST: api/finance
 
-    // START: PUT: api/finance
-    // Oppdaterer eksisterende finance-rad.
     [HttpPut]
     public async Task<IActionResult> Put(Finance finance)
     {
@@ -71,7 +58,6 @@ public class FinanceController : ControllerBase
         {
             _context.Entry(finance).State = EntityState.Modified;
             await _context.SaveChangesAsync();
-
             return NoContent();
         }
         catch
@@ -79,12 +65,10 @@ public class FinanceController : ControllerBase
             return StatusCode(500);
         }
     }
-    // SLUTT: PUT: api/finance
 
-    // START: POST: api/finance/loan
-    // Legger til penger i MoneyLeft (tar opp lån).
+    // START: Lån (bruker skriver beløp, vi legger til i MoneyLeft)
     [HttpPost("loan")]
-    public async Task<IActionResult> Loan(LoanRequest request)
+    public async Task<IActionResult> Loan([FromBody] LoanRequest request)
     {
         if (request == null || request.LoanAmount <= 0)
         {
@@ -99,47 +83,53 @@ public class FinanceController : ControllerBase
         }
 
         finance.MoneyLeft += request.LoanAmount;
-
         await _context.SaveChangesAsync();
 
         return Ok(finance);
     }
-    // SLUTT: POST: api/finance/loan
+    // SLUTT: Lån
 
-    // START: POST: api/finance/buy
-    // Kjøper en spiller og oppdaterer økonomien.
+    // START: Kjøp av spiller (oppdaterer både Athlete og Finance)
     [HttpPost("buy")]
-    public async Task<IActionResult> BuyPlayer(BuyRequest request)
+    public async Task<IActionResult> BuyPlayer([FromBody] BuyRequest request)
     {
+        if (request == null || request.AthleteId <= 0)
+        {
+            return BadRequest("Invalid athlete id.");
+        }
+
         Athlete? athlete = await _context.Athletes.FindAsync(request.AthleteId);
         Finance? finance = await _context.Finances.FirstOrDefaultAsync();
 
         if (athlete == null)
         {
-            return NotFound("Athlete not found");
+            return NotFound("Athlete not found.");
         }
 
         if (finance == null)
         {
-            return NotFound("Finance not found");
+            return NotFound("Finance not found.");
+        }
+
+        // Hindrer dobbeltkjøp
+        if (athlete.PurchaseStatus)
+        {
+            return BadRequest("Athlete is already purchased.");
         }
 
         if (athlete.Price > finance.MoneyLeft)
         {
-            return BadRequest("Not enough money");
+            return BadRequest("Not enough money.");
         }
 
-        // Oppdaterer status for spilleren
         athlete.PurchaseStatus = true;
 
-        // Oppdaterer finance
         finance.MoneyLeft -= athlete.Price;
         finance.MoneySpent += athlete.Price;
         finance.NumberOfPurchases++;
 
         await _context.SaveChangesAsync();
 
-        // Returnerer et lite DTO-objekt med kun det vi trenger
         return Ok(new FinanceBuyDto
         {
             MoneyLeft = finance.MoneyLeft,
@@ -147,17 +137,66 @@ public class FinanceController : ControllerBase
             NumberOfPurchases = finance.NumberOfPurchases
         });
     }
-    // SLUTT: POST: api/finance/buy
+    // SLUTT: Kjøp av spiller
 
-    // START: DTO-klasser
-    // Dette er små hjelpeklasser (Data Transfer Objects) for å ta imot og sende
-    // data i API-kall. De er ikke koblet direkte til databasen.
-    public class LoanRequest
+    // START: Selg spiller (uten å slette fra databasen)
+    // Vi setter PurchaseStatus tilbake til false slik at spilleren ikke lenger vises som "kjøpt".
+    // Pengene legges tilbake i MoneyLeft. MoneySpent lar vi stå (total brukt historisk).
+    [HttpPost("sell")]
+    public async Task<IActionResult> SellPlayer([FromBody] SellRequest request)
     {
-        public decimal LoanAmount { get; set; }
+        if (request == null || request.AthleteId <= 0)
+        {
+            return BadRequest("Invalid athlete id.");
+        }
+
+        Athlete? athlete = await _context.Athletes.FindAsync(request.AthleteId);
+        Finance? finance = await _context.Finances.FirstOrDefaultAsync();
+
+        if (athlete == null)
+        {
+            return NotFound("Athlete not found.");
+        }
+
+        if (finance == null)
+        {
+            return NotFound("Finance not found.");
+        }
+
+        if (!athlete.PurchaseStatus)
+        {
+            return BadRequest("Athlete is not purchased.");
+        }
+
+        // En enkel "sell price": bruker samme pris som kjøpspris (pensum-vennlig)
+        finance.MoneyLeft += athlete.Price;
+
+        athlete.PurchaseStatus = false;
+
+        // Antall kjøp i "laget" går ned når vi selger
+        if (finance.NumberOfPurchases > 0)
+        {
+            finance.NumberOfPurchases--;
+        }
+
+        await _context.SaveChangesAsync();
+
+        return Ok(new FinanceBuyDto
+        {
+            MoneyLeft = finance.MoneyLeft,
+            MoneySpent = finance.MoneySpent,
+            NumberOfPurchases = finance.NumberOfPurchases
+        });
+    }
+    // SLUTT: Selg spiller
+
+    // Små DTO-er brukt i API-kall (ikke database-tabeller)
+    public class BuyRequest
+    {
+        public int AthleteId { get; set; }
     }
 
-    public class BuyRequest
+    public class SellRequest
     {
         public int AthleteId { get; set; }
     }
@@ -168,6 +207,4 @@ public class FinanceController : ControllerBase
         public decimal MoneySpent { get; set; }
         public int NumberOfPurchases { get; set; }
     }
-    // SLUTT: DTO-klasser
 }
-// SLUTT: controller for Finance

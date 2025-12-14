@@ -2,11 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FootballAPI – Documentation</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
+
+    <!-- UU: Skip link for keyboard users -->
+    <a class="skip-link" href="#main">Skip to content</a>
 
     <!-- ================= HEADER ================= -->
     <header class="header">
@@ -16,7 +20,7 @@
                 Overview of API endpoints for Athletes, Venues, Finance, and Image Upload.
             </p>
 
-            <nav class="header__nav">
+            <nav class="header__nav" aria-label="API sections">
                 <a class="header__link" href="#athlete">Athlete</a>
                 <a class="header__link" href="#venue">Venue</a>
                 <a class="header__link" href="#finance">Finance</a>
@@ -28,68 +32,71 @@
 
 
     <!-- ================= MAIN CONTENT ================= -->
-    <main class="main-content">
+    <main id="main" class="main-content">
 
         <!-- ===== ATHLETE SECTION ===== -->
         <section id="athlete" class="api-section container">
             <h2 class="api-section__title">Athlete Endpoints</h2>
             <p class="api-section__description">CRUD operations for football athletes.</p>
 
-            <table class="api-table">
-                <thead>
-                    <tr>
-                        <th>Method</th>
-                        <th>URL</th>
-                        <th>Description</th>
-                        <th>Request Body</th>
-                        <th>Response</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>GET</td>
-                        <td>/api/athlete</td>
-                        <td>Get all athletes</td>
-                        <td>None</td>
-                        <td>200 OK + List&lt;Athlete&gt;</td>
-                    </tr>
-                    <tr>
-                        <td>GET</td>
-                        <td>/api/athlete/{id}</td>
-                        <td>Get a single athlete by ID</td>
-                        <td>None</td>
-                        <td>200 OK + Athlete / 404 Not Found</td>
-                    </tr>
-                    <tr>
-                        <td>GET</td>
-                        <td>/api/athlete/unpurchased</td>
-                        <td>Get all unpurchased athletes</td>
-                        <td>None</td>
-                        <td>200 OK + List&lt;Athlete&gt;</td>
-                    </tr>
-                    <tr>
-                        <td>POST</td>
-                        <td>/api/athlete</td>
-                        <td>Create a new athlete</td>
-                        <td>JSON Athlete (without Id)</td>
-                        <td>201 Created + Athlete</td>
-                    </tr>
-                    <tr>
-                        <td>PUT</td>
-                        <td>/api/athlete/{id}</td>
-                        <td>Update an existing athlete</td>
-                        <td>JSON Athlete (with Id)</td>
-                        <td>204 No Content</td>
-                    </tr>
-                    <tr>
-                        <td>DELETE</td>
-                        <td>/api/athlete/{id}</td>
-                        <td>Delete an athlete</td>
-                        <td>None</td>
-                        <td>204 No Content / 404 Not Found</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="table-wrapper">
+                <table class="api-table">
+                    <caption class="sr-only">Athlete API endpoints</caption>
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>URL</th>
+                            <th>Description</th>
+                            <th>Request Body</th>
+                            <th>Response</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>GET</td>
+                            <td>/api/athlete</td>
+                            <td>Get all athletes</td>
+                            <td>None</td>
+                            <td>200 OK + List&lt;Athlete&gt;</td>
+                        </tr>
+                        <tr>
+                            <td>GET</td>
+                            <td>/api/athlete/{id}</td>
+                            <td>Get a single athlete by ID</td>
+                            <td>None</td>
+                            <td>200 OK + Athlete / 404 Not Found</td>
+                        </tr>
+                        <tr>
+                            <td>GET</td>
+                            <td>/api/athlete/unpurchased</td>
+                            <td>Get all unpurchased athletes</td>
+                            <td>None</td>
+                            <td>200 OK + List&lt;Athlete&gt;</td>
+                        </tr>
+                        <tr>
+                            <td>POST</td>
+                            <td>/api/athlete</td>
+                            <td>Create a new athlete</td>
+                            <td>JSON Athlete (without Id)</td>
+                            <td>201 Created</td>
+                        </tr>
+                        <tr>
+                            <td>PUT</td>
+                            <td>/api/athlete</td>
+                            <td>Update an existing athlete</td>
+                            <td>JSON Athlete (with Id)</td>
+                            <td>204 No Content</td>
+                        </tr>
+                        <tr>
+                            <td>DELETE</td>
+                            <td>/api/athlete/{id}</td>
+                            <td>Delete an athlete</td>
+                            <td>None</td>
+                            <td>204 No Content / 404 Not Found</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </section>
 
 
@@ -98,54 +105,57 @@
             <h2 class="api-section__title">Venue Endpoints</h2>
             <p class="api-section__description">CRUD operations for event venues.</p>
 
-            <table class="api-table">
-                <thead>
-                    <tr>
-                        <th>Method</th>
-                        <th>URL</th>
-                        <th>Description</th>
-                        <th>Request Body</th>
-                        <th>Response</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>GET</td>
-                        <td>/api/venue</td>
-                        <td>Get all venues</td>
-                        <td>None</td>
-                        <td>200 OK + List&lt;Venue&gt;</td>
-                    </tr>
-                    <tr>
-                        <td>GET</td>
-                        <td>/api/venue/{id}</td>
-                        <td>Get a single venue by ID</td>
-                        <td>None</td>
-                        <td>200 OK + Venue / 404 Not Found</td>
-                    </tr>
-                    <tr>
-                        <td>POST</td>
-                        <td>/api/venue</td>
-                        <td>Add a new venue</td>
-                        <td>JSON Venue (without Id)</td>
-                        <td>201 Created + Venue</td>
-                    </tr>
-                    <tr>
-                        <td>PUT</td>
-                        <td>/api/venue/{id}</td>
-                        <td>Update an existing venue</td>
-                        <td>JSON Venue (with Id)</td>
-                        <td>204 No Content</td>
-                    </tr>
-                    <tr>
-                        <td>DELETE</td>
-                        <td>/api/venue/{id}</td>
-                        <td>Delete a venue</td>
-                        <td>None</td>
-                        <td>204 No Content / 404 Not Found</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="table-wrapper">
+                <table class="api-table">
+                    <caption class="sr-only">Venue API endpoints</caption>
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>URL</th>
+                            <th>Description</th>
+                            <th>Request Body</th>
+                            <th>Response</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>GET</td>
+                            <td>/api/venue</td>
+                            <td>Get all venues</td>
+                            <td>None</td>
+                            <td>200 OK + List&lt;Venue&gt;</td>
+                        </tr>
+                        <tr>
+                            <td>GET</td>
+                            <td>/api/venue/{id}</td>
+                            <td>Get a single venue by ID</td>
+                            <td>None</td>
+                            <td>200 OK + Venue / 404 Not Found</td>
+                        </tr>
+                        <tr>
+                            <td>POST</td>
+                            <td>/api/venue</td>
+                            <td>Add a new venue</td>
+                            <td>JSON Venue (without Id)</td>
+                            <td>201 Created</td>
+                        </tr>
+                        <tr>
+                            <td>PUT</td>
+                            <td>/api/venue</td>
+                            <td>Update an existing venue</td>
+                            <td>JSON Venue (with Id)</td>
+                            <td>204 No Content</td>
+                        </tr>
+                        <tr>
+                            <td>DELETE</td>
+                            <td>/api/venue/{id}</td>
+                            <td>Delete a venue</td>
+                            <td>None</td>
+                            <td>204 No Content / 404 Not Found</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </section>
 
 
@@ -154,40 +164,64 @@
             <h2 class="api-section__title">Finance Endpoints</h2>
             <p class="api-section__description">Manage money, purchases and loans.</p>
 
-            <table class="api-table">
-                <thead>
-                    <tr>
-                        <th>Method</th>
-                        <th>URL</th>
-                        <th>Description</th>
-                        <th>Request Body</th>
-                        <th>Response</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>GET</td>
-                        <td>/api/finance</td>
-                        <td>Get current finance state</td>
-                        <td>None</td>
-                        <td>200 OK + Finance object</td>
-                    </tr>
-                    <tr>
-                        <td>PUT</td>
-                        <td>/api/finance/{id}</td>
-                        <td>Update finance data</td>
-                        <td>JSON Finance</td>
-                        <td>204 No Content</td>
-                    </tr>
-                    <tr>
-                        <td>POST</td>
-                        <td>/api/finance/loan</td>
-                        <td>Take a loan (add money)</td>
-                        <td>{ "amount": number }</td>
-                        <td>200 OK + updated Finance</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="table-wrapper">
+                <table class="api-table">
+                    <caption class="sr-only">Finance API endpoints</caption>
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>URL</th>
+                            <th>Description</th>
+                            <th>Request Body</th>
+                            <th>Response</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>GET</td>
+                            <td>/api/finance</td>
+                            <td>Get current finance state</td>
+                            <td>None</td>
+                            <td>200 OK + Finance object</td>
+                        </tr>
+                        <tr>
+                            <td>POST</td>
+                            <td>/api/finance</td>
+                            <td>Create finance row (normally once)</td>
+                            <td>JSON Finance</td>
+                            <td>201 Created</td>
+                        </tr>
+                        <tr>
+                            <td>PUT</td>
+                            <td>/api/finance</td>
+                            <td>Update finance data</td>
+                            <td>JSON Finance</td>
+                            <td>204 No Content</td>
+                        </tr>
+                        <tr>
+                            <td>POST</td>
+                            <td>/api/finance/loan</td>
+                            <td>Take a loan (add money)</td>
+                            <td>{ "loanAmount": number }</td>
+                            <td>200 OK + updated Finance</td>
+                        </tr>
+                        <tr>
+                            <td>POST</td>
+                            <td>/api/finance/buy</td>
+                            <td>Purchase an athlete (updates Athlete + Finance)</td>
+                            <td>{ "athleteId": number }</td>
+                            <td>200 OK + updated finance values</td>
+                        </tr>
+                        <tr>
+                            <td>POST</td>
+                            <td>/api/finance/sell</td>
+                            <td>Sell a purchased athlete (remove from squad without deleting)</td>
+                            <td>{ "athleteId": number }</td>
+                            <td>200 OK + updated finance values</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </section>
 
 
@@ -196,26 +230,29 @@
             <h2 class="api-section__title">Image Upload</h2>
             <p class="api-section__description">Upload images used for athletes or venues.</p>
 
-            <table class="api-table">
-                <thead>
-                    <tr>
-                        <th>Method</th>
-                        <th>URL</th>
-                        <th>Description</th>
-                        <th>Request Body</th>
-                        <th>Response</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>POST</td>
-                        <td>/api/imageupload</td>
-                        <td>Upload a single image file</td>
-                        <td>FormData with "file"</td>
-                        <td>201 Created</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="table-wrapper">
+                <table class="api-table">
+                    <caption class="sr-only">Image upload API endpoint</caption>
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>URL</th>
+                            <th>Description</th>
+                            <th>Request Body</th>
+                            <th>Response</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>POST</td>
+                            <td>/api/imageupload</td>
+                            <td>Upload a single image file</td>
+                            <td>FormData with "file"</td>
+                            <td>200 OK + { "fileName": "example.jpg" }</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </section>
 
     </main>

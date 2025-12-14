@@ -2,25 +2,20 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FootballAPI.Controllers;
 
-// START: controller for bildeopplasting
+// START: Controller for bildeopplasting til wwwroot/images
 [ApiController]
 [Route("api/[controller]")]
 public class ImageUploadController : ControllerBase
 {
-    // START: felt for webrot (wwwroot)
-    // IWebHostEnvironment gir oss tilgang til WebRootPath (wwwroot-mappa).
     private readonly IWebHostEnvironment _webHostEnvironment;
-    // SLUTT: felt for webrot (wwwroot)
 
-    // START: konstruktør som får inn IWebHostEnvironment fra rammeverket
+    // Konstruktør som gir tilgang til wwwroot-mappen
     public ImageUploadController(IWebHostEnvironment webHostEnvironment)
     {
         _webHostEnvironment = webHostEnvironment;
     }
-    // SLUTT: konstruktør som får inn IWebHostEnvironment fra rammeverket
 
-    // START: POST: api/imageupload
-    // Tar imot én fil med navnet "file" (samme som i formData i frontend).
+    // Tar imot én fil med navnet "file" fra frontend
     [HttpPost]
     public async Task<IActionResult> Post(IFormFile file)
     {
@@ -28,35 +23,33 @@ public class ImageUploadController : ControllerBase
         {
             if (file == null || file.Length == 0)
             {
-                return BadRequest("No file uploaded");
+                return BadRequest("No file uploaded.");
             }
 
-            // finner fysisk sti til wwwroot/images
             string webRootPath = _webHostEnvironment.WebRootPath;
             string imagesFolder = Path.Combine(webRootPath, "images");
 
-            // lager mappen hvis den ikke finnes fra før
+            // Lager images-mappen hvis den ikke finnes
             if (!Directory.Exists(imagesFolder))
             {
                 Directory.CreateDirectory(imagesFolder);
             }
 
-            string absolutePath = Path.Combine(imagesFolder, file.FileName);
+            string filePath = Path.Combine(imagesFolder, file.FileName);
 
-            // lagrer fila til disk
-            using (var fileStream = new FileStream(absolutePath, FileMode.Create))
+            // Lagrer fila til disk
+            using (var stream = new FileStream(filePath, FileMode.Create))
             {
-                await file.CopyToAsync(fileStream);
+                await file.CopyToAsync(stream);
             }
 
-            // 201 Created er nok her, vi trenger ikke sende ekstra data tilbake
-            return Created(string.Empty, null);
+            // Returnerer filnavnet slik at frontend kan lagre det på Athlete/Venue
+            return Ok(new { fileName = file.FileName });
         }
         catch
         {
             return StatusCode(500);
         }
     }
-    // SLUTT: POST: api/imageupload
 }
-// SLUTT: controller for bildeopplasting
+// SLUTT: Controller for bildeopplasting
