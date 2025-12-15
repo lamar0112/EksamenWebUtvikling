@@ -1,24 +1,17 @@
-// START: venueService – HTTP calls to VenueController
+// ========================= START venueService.ts ==========================
+
 import axios from "axios";
 import type IVenue from "../interfaces/IVenue";
 
 const endpoint = "http://localhost:5163/api/venue";
 
-interface IListResponse {
+interface IResponse<T> {
   success: boolean;
-  data: IVenue[] | null;
+  data: T | null;
 }
 
-interface IItemResponse {
-  success: boolean;
-  data: IVenue | null;
-}
-
-interface IActionResponse {
-  success: boolean;
-}
-
-const getAllVenues = async (): Promise<IListResponse> => {
+// GET all
+const getAllVenues = async (): Promise<IResponse<IVenue[]>> => {
   try {
     const response = await axios.get(endpoint);
     return { success: true, data: response.data };
@@ -27,7 +20,8 @@ const getAllVenues = async (): Promise<IListResponse> => {
   }
 };
 
-const getVenueById = async (id: number): Promise<IItemResponse> => {
+// GET by id
+const getVenueById = async (id: number): Promise<IResponse<IVenue>> => {
   try {
     const response = await axios.get(`${endpoint}/${id}`);
     return { success: true, data: response.data };
@@ -36,38 +30,55 @@ const getVenueById = async (id: number): Promise<IItemResponse> => {
   }
 };
 
-const postVenue = async (venue: IVenue): Promise<IActionResponse> => {
+// GET search by name (NEW)
+const searchVenuesByName = async (name: string): Promise<IResponse<IVenue[]>> => {
+  try {
+    const response = await axios.get(`${endpoint}/search`, {
+      params: { name },
+    });
+    return { success: true, data: response.data };
+  } catch {
+    return { success: false, data: null };
+  }
+};
+
+// POST
+const postVenue = async (venue: IVenue): Promise<IResponse<null>> => {
   try {
     await axios.post(endpoint, venue);
-    return { success: true };
+    return { success: true, data: null };
   } catch {
-    return { success: false };
+    return { success: false, data: null };
   }
 };
 
-const putVenue = async (venue: IVenue): Promise<IActionResponse> => {
+// PUT
+const putVenue = async (venue: IVenue): Promise<IResponse<null>> => {
   try {
     await axios.put(endpoint, venue);
-    return { success: true };
+    return { success: true, data: null };
   } catch {
-    return { success: false };
+    return { success: false, data: null };
   }
 };
 
-const deleteVenue = async (id: number): Promise<IActionResponse> => {
+// DELETE
+const deleteVenue = async (id: number): Promise<IResponse<null>> => {
   try {
     await axios.delete(`${endpoint}/${id}`);
-    return { success: true };
+    return { success: true, data: null };
   } catch {
-    return { success: false };
+    return { success: false, data: null };
   }
 };
 
 export default {
   getAllVenues,
   getVenueById,
+  searchVenuesByName,
   postVenue,
   putVenue,
   deleteVenue,
 };
-// SLUTT: venueService
+
+// ========================== SLUTT venueService.ts ==========================

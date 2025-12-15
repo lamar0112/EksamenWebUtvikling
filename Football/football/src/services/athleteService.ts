@@ -1,80 +1,99 @@
-// START: athleteService – HTTP-kall mot AthleteController + buy via FinanceController
+// ========================= START athleteService.ts =========================
+// Service for AthleteController (CRUD + search + buy)
+
 import axios from "axios";
 import type IAthlete from "../interfaces/IAthlete";
 
-const athleteEndpoint = "http://localhost:5163/api/athlete";
-const financeEndpoint = "http://localhost:5163/api/finance";
+const endpoint = "http://localhost:5163/api/athlete";
 
-type ListResponse = { success: boolean; data: IAthlete[] | null };
-type ItemResponse = { success: boolean; data: IAthlete | null };
-type ActionResponse = { success: boolean };
+interface IResponse<T> {
+  success: boolean;
+  data: T | null;
+}
 
-// START: GET
-const getAthletes = async (): Promise<ListResponse> => {
+// GET all
+const getAthletes = async (): Promise<IResponse<IAthlete[]>> => {
   try {
-    const response = await axios.get(athleteEndpoint);
+    const response = await axios.get(endpoint);
     return { success: true, data: response.data };
   } catch {
     return { success: false, data: null };
   }
 };
 
-const getAthleteById = async (id: number): Promise<ItemResponse> => {
+// GET by id
+const getAthleteById = async (id: number): Promise<IResponse<IAthlete>> => {
   try {
-    const response = await axios.get(`${athleteEndpoint}/${id}`);
+    const response = await axios.get(`${endpoint}/${id}`);
     return { success: true, data: response.data };
   } catch {
     return { success: false, data: null };
   }
 };
-// SLUTT: GET
 
-// START: POST/PUT/DELETE
-const postAthlete = async (athlete: IAthlete): Promise<ActionResponse> => {
+// GET search by name (NEW)
+const searchAthletesByName = async (
+  name: string
+): Promise<IResponse<IAthlete[]>> => {
   try {
-    await axios.post(athleteEndpoint, athlete);
-    return { success: true };
+    const response = await axios.get(`${endpoint}/search`, {
+      params: { name },
+    });
+    return { success: true, data: response.data };
   } catch {
-    return { success: false };
+    return { success: false, data: null };
   }
 };
 
-const putAthlete = async (athlete: IAthlete): Promise<ActionResponse> => {
+// POST create
+const postAthlete = async (athlete: IAthlete): Promise<IResponse<IAthlete>> => {
   try {
-    await axios.put(athleteEndpoint, athlete);
-    return { success: true };
+    const response = await axios.post(endpoint, athlete);
+    return { success: true, data: response.data };
   } catch {
-    return { success: false };
+    return { success: false, data: null };
   }
 };
 
-const deleteAthlete = async (id: number): Promise<ActionResponse> => {
+// PUT update
+const putAthlete = async (athlete: IAthlete): Promise<IResponse<null>> => {
   try {
-    await axios.delete(`${athleteEndpoint}/${id}`);
-    return { success: true };
+    await axios.put(endpoint, athlete);
+    return { success: true, data: null };
   } catch {
-    return { success: false };
+    return { success: false, data: null };
   }
 };
-// SLUTT: POST/PUT/DELETE
 
-// START: BUY (via finance)
-const buyAthlete = async (id: number): Promise<ActionResponse> => {
+// DELETE
+const deleteAthlete = async (id: number): Promise<IResponse<null>> => {
   try {
-    await axios.post(`${financeEndpoint}/buy`, { athleteId: id });
-    return { success: true };
+    await axios.delete(`${endpoint}/${id}`);
+    return { success: true, data: null };
   } catch {
-    return { success: false };
+    return { success: false, data: null };
   }
 };
-// SLUTT: BUY
+
+// BUY (if you already have this endpoint in AthleteController or FinanceController)
+// If buy is in FinanceController, keep it there instead.
+const buyAthlete = async (id: number): Promise<IResponse<null>> => {
+  try {
+    await axios.post(`http://localhost:5163/api/finance/buy`, { athleteId: id });
+    return { success: true, data: null };
+  } catch {
+    return { success: false, data: null };
+  }
+};
 
 export default {
   getAthletes,
   getAthleteById,
+  searchAthletesByName,
   postAthlete,
   putAthlete,
   deleteAthlete,
   buyAthlete,
 };
-// SLUTT: athleteService
+
+// ========================== SLUTT athleteService.ts =========================
