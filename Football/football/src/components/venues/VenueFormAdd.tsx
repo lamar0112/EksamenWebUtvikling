@@ -1,44 +1,35 @@
-// START: VenueFormAdd – form to register a new venue
+// START: VenueFormAdd – register new venue (with feedback)
 import { useMemo, useState, type ChangeEvent } from "react";
 import type IVenue from "../../interfaces/IVenue";
 import venueService from "../../services/venueService";
 import imageUploadService from "../../services/imageUploadService";
 import FeedbackMessage from "../common/FeedbackMessage";
 
+type FeedbackType = "" | "success" | "error";
+
 const VenueFormAdd = () => {
-  // START: state for new venue
   const [venue, setVenue] = useState<IVenue>({
     id: 0,
     name: "",
     capacity: 0,
     image: "",
   });
-  // SLUTT: state for new venue
 
   const [isUploading, setIsUploading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
+  const [feedbackType, setFeedbackType] = useState<FeedbackType>("");
   const [feedbackMessage, setFeedbackMessage] = useState("");
-  const [feedbackType, setFeedbackType] = useState<"" | "success" | "error">("");
 
-  // START: derived image url (preview)
   const imageUrl = useMemo(() => {
     if (!venue.image) return "";
     return `http://localhost:5163/images/${venue.image}`;
   }, [venue.image]);
-  // SLUTT: derived image url
 
-  // START: reset form after success
   const resetForm = () => {
-    setVenue({
-      id: 0,
-      name: "",
-      capacity: 0,
-      image: "",
-    });
+    setVenue({ id: 0, name: "", capacity: 0, image: "" });
   };
-  // SLUTT: reset form
 
-  // START: update fields
   const update = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
@@ -47,53 +38,57 @@ const VenueFormAdd = () => {
       [name]: name === "capacity" ? Number(value) : value,
     }));
   };
-  // SLUTT: update fields
 
-  // START: upload image to API
+  // START: upload image
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
 
     const file = e.target.files[0];
-
     setIsUploading(true);
+
     const response = await imageUploadService.uploadImage(file);
+
     setIsUploading(false);
 
     if (response.success) {
       setVenue((prev) => ({ ...prev, image: file.name }));
-      setFeedbackMessage("Image uploaded.");
       setFeedbackType("success");
+      setFeedbackMessage("Image uploaded.");
     } else {
-      setFeedbackMessage("Could not upload image.");
       setFeedbackType("error");
+      setFeedbackMessage("Could not upload image.");
     }
   };
   // SLUTT: upload image
 
-  // START: save venue via API
+  // START: save venue
   const save = async () => {
     if (venue.name.trim() === "") {
-      setFeedbackMessage("Venue name is required.");
       setFeedbackType("error");
+      setFeedbackMessage("Venue name is required.");
       return;
     }
 
     if (venue.capacity <= 0) {
-      setFeedbackMessage("Capacity must be greater than 0.");
       setFeedbackType("error");
+      setFeedbackMessage("Capacity must be greater than 0.");
       return;
     }
+
+    setIsSaving(true);
 
     const response = await venueService.postVenue(venue);
 
     if (response.success) {
-      setFeedbackMessage("Venue added.");
       setFeedbackType("success");
+      setFeedbackMessage("Venue added.");
       resetForm();
     } else {
-      setFeedbackMessage("Could not save venue.");
       setFeedbackType("error");
+      setFeedbackMessage("Could not save venue.");
     }
+
+    setIsSaving(false);
   };
   // SLUTT: save venue
 
@@ -116,12 +111,8 @@ const VenueFormAdd = () => {
 
       {/* START: fields */}
       <div className="grid gap-4 md:grid-cols-2">
-        {/* Name */}
         <div className="space-y-1">
-          <label
-            htmlFor="venue-name"
-            className="block text-xs font-medium text-slate-400"
-          >
+          <label htmlFor="venue-name" className="block text-xs font-medium text-slate-400">
             Venue name
           </label>
           <input
@@ -135,12 +126,8 @@ const VenueFormAdd = () => {
           />
         </div>
 
-        {/* Capacity */}
         <div className="space-y-1">
-          <label
-            htmlFor="venue-capacity"
-            className="block text-xs font-medium text-slate-400"
-          >
+          <label htmlFor="venue-capacity" className="block text-xs font-medium text-slate-400">
             Capacity
           </label>
           <input
@@ -161,10 +148,7 @@ const VenueFormAdd = () => {
       {/* START: image upload + preview */}
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
-          <label
-            htmlFor="venue-image"
-            className="block text-xs font-medium text-slate-400"
-          >
+          <label htmlFor="venue-image" className="block text-xs font-medium text-slate-400">
             Upload image (optional)
           </label>
           <input
@@ -211,9 +195,10 @@ const VenueFormAdd = () => {
         <button
           onClick={save}
           type="button"
-          className="rounded-lg bg-purple-400 px-5 py-2 text-sm font-semibold text-slate-950 shadow hover:bg-purple-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-purple-300"
+          disabled={isSaving || isUploading}
+          className="rounded-lg bg-purple-400 px-5 py-2 text-sm font-semibold text-slate-950 shadow hover:bg-purple-300 disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-purple-300"
         >
-          Save venue
+          {isSaving ? "Saving..." : "Save venue"}
         </button>
 
         <button

@@ -1,11 +1,12 @@
-// START: VenueEditPage – page for editing a venue
-
+// START: VenueEditPage – edit venue by id
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import type IVenue from "../interfaces/IVenue";
 import venueService from "../services/venueService";
 import VenueFormEdit from "../components/venues/VenueFormEdit";
 import FeedbackMessage from "../components/common/FeedbackMessage";
+
+type FeedbackType = "" | "success" | "error";
 
 const VenueEditPage = () => {
   const { id } = useParams();
@@ -15,14 +16,14 @@ const VenueEditPage = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   const [feedbackMessage, setFeedbackMessage] = useState("");
-  const [feedbackType, setFeedbackType] = useState<"" | "success" | "error">("");
+  const [feedbackType, setFeedbackType] = useState<FeedbackType>("");
 
   // START: load venue by id
   useEffect(() => {
     const load = async () => {
       if (!id) {
-        setFeedbackMessage("Missing venue id.");
         setFeedbackType("error");
+        setFeedbackMessage("Missing venue id.");
         setIsLoading(false);
         return;
       }
@@ -31,8 +32,8 @@ const VenueEditPage = () => {
       if (response.success && response.data) {
         setVenue(response.data);
       } else {
-        setFeedbackMessage("Could not load venue.");
         setFeedbackType("error");
+        setFeedbackMessage("Could not load venue.");
       }
 
       setIsLoading(false);
@@ -46,10 +47,14 @@ const VenueEditPage = () => {
   const handleChange = (field: string, value: string | number) => {
     if (!venue) return;
 
-    setVenue({
-      ...venue,
-      [field]: field === "capacity" ? Number(value) : value,
-    });
+    setVenue((prev) =>
+      prev
+        ? {
+            ...prev,
+            [field]: field === "capacity" ? Number(value) : value,
+          }
+        : prev
+    );
   };
   // SLUTT: handle field changes
 
@@ -58,24 +63,24 @@ const VenueEditPage = () => {
     if (!venue) return;
 
     if (venue.name.trim() === "") {
-      setFeedbackMessage("Venue name is required.");
       setFeedbackType("error");
+      setFeedbackMessage("Venue name is required.");
       return;
     }
 
     if (venue.capacity <= 0) {
-      setFeedbackMessage("Capacity must be greater than 0.");
       setFeedbackType("error");
+      setFeedbackMessage("Capacity must be greater than 0.");
       return;
     }
 
     const response = await venueService.putVenue(venue);
     if (response.success) {
-      setFeedbackMessage("Venue updated.");
       setFeedbackType("success");
+      setFeedbackMessage("Venue updated.");
     } else {
-      setFeedbackMessage("Could not save changes.");
       setFeedbackType("error");
+      setFeedbackMessage("Could not save changes.");
     }
   };
   // SLUTT: save changes
@@ -86,7 +91,7 @@ const VenueEditPage = () => {
   };
   // SLUTT: cancel edit
 
-  // START: loading/empty states
+  // START: loading/empty
   if (isLoading) {
     return (
       <main className="min-h-screen bg-slate-950 px-4 py-8 text-slate-100">
@@ -116,7 +121,7 @@ const VenueEditPage = () => {
       </main>
     );
   }
-  // SLUTT: loading/empty states
+  // SLUTT: loading/empty
 
   return (
     <main className="min-h-screen bg-slate-950 px-4 py-8 text-slate-100">
@@ -139,7 +144,7 @@ const VenueEditPage = () => {
         )}
         {/* SLUTT: feedback */}
 
-        {/* START: form wrapper */}
+        {/* START: form */}
         <section className="rounded-xl border border-slate-800 bg-slate-900/40 p-5 shadow-lg">
           <VenueFormEdit
             venue={venue}
@@ -148,12 +153,11 @@ const VenueEditPage = () => {
             onCancel={handleCancel}
           />
         </section>
-        {/* SLUTT: form wrapper */}
+        {/* SLUTT: form */}
       </section>
     </main>
   );
 };
 
 export default VenueEditPage;
-
 // SLUTT: VenueEditPage

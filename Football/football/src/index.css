@@ -54,28 +54,56 @@ a {
   background-size: cover;
   background-position: center 80%;
 
-  /* Liten boost (ikke for “AI-advanced”) */
-  filter: saturate(1.15) contrast(1.08) brightness(1.05);
+  /* Litt boost uten å bli “for mye” */
+  filter: saturate(1.15) contrast(1.08) brightness(1.06);
 }
 /* SLUTT: bakgrunn (stadion) */
+
+/* START: tekst i himmel (bak spotlight) */
+.home__brand {
+  position: absolute;
+  top: 185px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  /* Større og mer “cinematic” */
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+
+  /* Blender inn i himmelen */
+  color: rgba(226, 232, 240, 0.42);
+
+  /* Mild skygge så den fortsatt kan leses */
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
+
+  /* Ligger bak spotlighten */
+  z-index: -2;
+
+  pointer-events: none;
+}
+/* SLUTT: tekst i himmel */
 
 /* START: spotlight (PNG som overlay) */
 .home__spotlight {
   position: absolute;
   inset: 0;
-  z-index: -2;
+
+  /* Viktig: spotlight over brand, men under overlay */
+  z-index: -1;
 
   background-image: url("/images/spotlight.png");
   background-repeat: no-repeat;
   background-size: 1150px auto;
   background-position: 50% 0;
 
-  /* FIX: lavere opacity så den ikke blir “svart matte” */
-  opacity: 0.45;
+  /* FIX: lavere opacity så det ikke blir mørkt/svart */
+  opacity: 0.28;
 
   /* Enkel animasjon (pensum) */
   animation: spotlightMove 8s ease-in-out infinite,
-             spotlightFlicker 3.2s steps(2, end) infinite;
+    spotlightFlicker 3.2s steps(2, end) infinite;
 }
 /* SLUTT: spotlight */
 
@@ -83,49 +111,30 @@ a {
 .home__overlay {
   position: absolute;
   inset: 0;
-  z-index: -1;
 
-  /* FIX: litt lysere overlay, så siden ikke blir for mørk */
-  background:
-    radial-gradient(
+  /* Overlay øverst av bakgrunnslagene */
+  z-index: 0;
+
+  /* FIX: lysere overlay */
+  background: radial-gradient(
       70% 70% at 50% 45%,
-      rgba(2, 6, 23, 0.06),
-      rgba(2, 6, 23, 0.30)
+      rgba(2, 6, 23, 0.03),
+      rgba(2, 6, 23, 0.22)
     ),
     linear-gradient(
       to bottom,
-      rgba(2, 6, 23, 0.10),
-      rgba(2, 6, 23, 0.40)
+      rgba(2, 6, 23, 0.06),
+      rgba(2, 6, 23, 0.30)
     );
 }
 /* SLUTT: overlay */
 
-/* START: tekst i himmel */
-.home__brand {
-  position: absolute;
-  top: 175px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 2;
-
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.35em;
-  text-transform: uppercase;
-
-  /* Blend inn i himmelen, men lesbar */
-  color: rgba(226, 232, 240, 0.55);
-
-  text-shadow: 0 0 14px rgba(0, 0, 0, 0.45);
-  pointer-events: none;
-}
-/* SLUTT: tekst i himmel */
-
 /* START: tekst på ball */
 .home__content {
   position: relative;
-  height: 100%;
+  z-index: 2;
 
+  height: 100%;
   display: flex;
   justify-content: center;
   align-items: flex-end;
@@ -138,8 +147,8 @@ a {
   width: 365px;
   text-align: center;
 
-  /* Juster plassering på ballen */
-  transform: translate(0px, -145px);
+  /* FIX: flytter teksten mer til midten av ballen */
+  transform: translate(0px, -205px);
 
   font-size: 28px;
   line-height: 1.15;
@@ -166,15 +175,27 @@ a {
 
 /* START: animasjoner */
 @keyframes spotlightMove {
-  0%   { transform: translateX(-1%); }
-  50%  { transform: translateX(1%); }
-  100% { transform: translateX(-1%); }
+  0% {
+    transform: translateX(-1%);
+  }
+  50% {
+    transform: translateX(1%);
+  }
+  100% {
+    transform: translateX(-1%);
+  }
 }
 
 @keyframes spotlightFlicker {
-  0%   { opacity: 0.42; }
-  50%  { opacity: 0.52; }
-  100% { opacity: 0.42; }
+  0% {
+    opacity: 0.26;
+  }
+  50% {
+    opacity: 0.32;
+  }
+  100% {
+    opacity: 0.26;
+  }
 }
 /* SLUTT: animasjoner */
 

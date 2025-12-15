@@ -1,5 +1,4 @@
-// START: VenueFormEdit – form for editing an existing venue
-
+// START: VenueFormEdit – edit existing venue (optional image upload)
 import { useMemo, type ChangeEvent } from "react";
 import type IVenue from "../../interfaces/IVenue";
 import imageUploadService from "../../services/imageUploadService";
@@ -12,12 +11,10 @@ type Props = {
 };
 
 const VenueFormEdit = ({ venue, onChange, onSave, onCancel }: Props) => {
-  // START: derived image url (preview)
   const imageUrl = useMemo(() => {
     if (!venue.image) return "";
     return `http://localhost:5163/images/${venue.image}`;
   }, [venue.image]);
-  // SLUTT: derived image url
 
   // START: upload new image (optional)
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -46,10 +43,7 @@ const VenueFormEdit = ({ venue, onChange, onSave, onCancel }: Props) => {
       {/* START: fields */}
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-1">
-          <label
-            htmlFor="venue-edit-name"
-            className="block text-xs font-medium text-slate-400"
-          >
+          <label htmlFor="venue-edit-name" className="block text-xs font-medium text-slate-400">
             Venue name
           </label>
           <input
@@ -63,10 +57,7 @@ const VenueFormEdit = ({ venue, onChange, onSave, onCancel }: Props) => {
         </div>
 
         <div className="space-y-1">
-          <label
-            htmlFor="venue-edit-capacity"
-            className="block text-xs font-medium text-slate-400"
-          >
+          <label htmlFor="venue-edit-capacity" className="block text-xs font-medium text-slate-400">
             Capacity
           </label>
           <input
@@ -86,10 +77,7 @@ const VenueFormEdit = ({ venue, onChange, onSave, onCancel }: Props) => {
       {/* START: image upload + preview */}
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
-          <label
-            htmlFor="venue-edit-image"
-            className="block text-xs font-medium text-slate-400"
-          >
+          <label htmlFor="venue-edit-image" className="block text-xs font-medium text-slate-400">
             Replace image (optional)
           </label>
           <input
@@ -151,5 +139,4 @@ const VenueFormEdit = ({ venue, onChange, onSave, onCancel }: Props) => {
 };
 
 export default VenueFormEdit;
-
 // SLUTT: VenueFormEdit

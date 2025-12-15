@@ -1,6 +1,5 @@
-// START: DashbordComponent – økonomi, lån, kjøp og salg av spillere
-
-import { useEffect, useState } from "react";
+// START: DashbordComponent – økonomi, lån, kjøp og salg (no alert/confirm)
+import { useEffect, useMemo, useState } from "react";
 import type IFinance from "../../interfaces/IFinance";
 import type IAthlete from "../../interfaces/IAthlete";
 import financeService from "../../services/financeService";
@@ -10,27 +9,30 @@ import FeedbackMessage from "../common/FeedbackMessage";
 type FeedbackType = "" | "success" | "error";
 
 const DashbordComponent = () => {
-  // START: state for økonomi og spillere
+  // START: state
   const [finance, setFinance] = useState<IFinance | null>(null);
   const [loanAmount, setLoanAmount] = useState<number>(0);
 
-  const [availableAthletes, setAvailableAthletes] = useState<IAthlete[]>([]);
-  const [purchasedAthletes, setPurchasedAthletes] = useState<IAthlete[]>([]);
-
+  const [athletes, setAthletes] = useState<IAthlete[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const [pendingBuyId, setPendingBuyId] = useState<number | null>(null);
+  const [pendingSellId, setPendingSellId] = useState<number | null>(null);
+
+  const [isWorking, setIsWorking] = useState(false);
 
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [feedbackType, setFeedbackType] = useState<FeedbackType>("");
-  // SLUTT: state for økonomi og spillere
+  // SLUTT: state
 
-  // START: hjelpefunksjon for tilbakemelding
+  // START: feedback helper
   const showFeedback = (message: string, type: Exclude<FeedbackType, "">) => {
     setFeedbackMessage(message);
     setFeedbackType(type);
   };
-  // SLUTT: hjelpefunksjon for tilbakemelding
+  // SLUTT: feedback helper
 
-  // START: henter økonomi fra API-et
+  // START: load finance
   const loadFinance = async () => {
     const response = await financeService.getFinance();
     if (response.success && response.data) {
@@ -39,42 +41,53 @@ const DashbordComponent = () => {
       showFeedback("Kunne ikke hente økonomi.", "error");
     }
   };
-  // SLUTT: henter økonomi
+  // SLUTT: load finance
 
-  // START: henter spillere og deler dem i tilgjengelige og kjøpte
+  // START: load athletes
   const loadAthletes = async () => {
     const response = await athleteService.getAthletes();
-
     if (response.success && response.data) {
-      const all = response.data;
-      setAvailableAthletes(all.filter((a) => a.purchaseStatus === false));
-      setPurchasedAthletes(all.filter((a) => a.purchaseStatus === true));
+      setAthletes(response.data);
     } else {
       showFeedback("Kunne ikke hente spillere.", "error");
     }
   };
-  // SLUTT: henter spillere
+  // SLUTT: load athletes
 
-  // START: laster alt ved første rendering
+  // START: initial load
   useEffect(() => {
     const loadAll = async () => {
       setIsLoading(true);
       await Promise.all([loadFinance(), loadAthletes()]);
       setIsLoading(false);
     };
-
     loadAll();
   }, []);
-  // SLUTT: laster alt ved første rendering
+  // SLUTT: initial load
 
-  // START: legger til lån
+  // START: derived lists
+  const availableAthletes = useMemo(
+    () => athletes.filter((a) => a.purchaseStatus === false),
+    [athletes]
+  );
+  const purchasedAthletes = useMemo(
+    () => athletes.filter((a) => a.purchaseStatus === true),
+    [athletes]
+  );
+  // SLUTT: derived lists
+
+  // START: loan
   const handleLoan = async () => {
+    if (!finance) return;
+
     if (loanAmount <= 0) {
       showFeedback("Lånebeløpet må være større enn 0.", "error");
       return;
     }
 
-    const response = await financeService.postLoan(loanAmount);
+    setIsWorking(true);
+
+    const response = await financeService.postLoan(loanAmount, finance);
 
     if (response.success && response.data) {
       setFinance(response.data);
@@ -83,20 +96,43 @@ const DashbordComponent = () => {
     } else {
       showFeedback("Kunne ikke registrere lån.", "error");
     }
-  };
-  // SLUTT: legger til lån
 
-  // START: kjøper spiller
-  const handleBuyAthlete = async (athlete: IAthlete) => {
+    setIsWorking(false);
+  };
+  // SLUTT: loan
+
+  // START: pending actions
+  const startBuy = (athleteId: number) => {
+    setPendingBuyId(athleteId);
+    setPendingSellId(null);
+    setFeedbackType("");
+    setFeedbackMessage("");
+  };
+
+  const startSell = (athleteId: number) => {
+    setPendingSellId(athleteId);
+    setPendingBuyId(null);
+    setFeedbackType("");
+    setFeedbackMessage("");
+  };
+
+  const cancelPending = () => {
+    setPendingBuyId(null);
+    setPendingSellId(null);
+  };
+  // SLUTT: pending actions
+
+  // START: confirm buy
+  const confirmBuy = async (athlete: IAthlete) => {
     if (!finance) return;
 
     if (finance.moneyLeft < athlete.price) {
       showFeedback("Du har ikke nok penger til å kjøpe denne spilleren.", "error");
+      setPendingBuyId(null);
       return;
     }
 
-    const ok = confirm(`Vil du kjøpe ${athlete.name} for ${athlete.price.toLocaleString()} kr?`);
-    if (!ok) return;
+    setIsWorking(true);
 
     const response = await athleteService.buyAthlete(athlete.id);
 
@@ -106,15 +142,19 @@ const DashbordComponent = () => {
     } else {
       showFeedback("Kunne ikke kjøpe spiller.", "error");
     }
+
+    setPendingBuyId(null);
+    setIsWorking(false);
   };
-  // SLUTT: kjøper spiller
+  // SLUTT: confirm buy
 
-  // START: selger spiller
-  const handleSellAthlete = async (athlete: IAthlete) => {
-    const ok = confirm(`Vil du selge ${athlete.name}?`);
-    if (!ok) return;
+  // START: confirm sell
+  const confirmSell = async (athlete: IAthlete) => {
+    if (!finance) return;
 
-    const response = await financeService.sellAthlete(athlete.id);
+    setIsWorking(true);
+
+    const response = await financeService.sellAthlete(athlete.id, finance);
 
     if (response.success && response.data) {
       setFinance(response.data);
@@ -123,8 +163,11 @@ const DashbordComponent = () => {
     } else {
       showFeedback("Kunne ikke selge spiller.", "error");
     }
+
+    setPendingSellId(null);
+    setIsWorking(false);
   };
-  // SLUTT: selger spiller
+  // SLUTT: confirm sell
 
   // START: loading
   if (isLoading || !finance) {
@@ -138,11 +181,9 @@ const DashbordComponent = () => {
 
   return (
     <section className="space-y-8">
-      {/* START: tilbakemelding */}
-      {feedbackType && (
-        <FeedbackMessage type={feedbackType === "success" ? "success" : "error"} message={feedbackMessage} />
-      )}
-      {/* SLUTT: tilbakemelding */}
+      {/* START: feedback */}
+      {feedbackType && <FeedbackMessage type={feedbackType} message={feedbackMessage} />}
+      {/* SLUTT: feedback */}
 
       {/* START: økonomi */}
       <section className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 shadow-lg">
@@ -186,7 +227,7 @@ const DashbordComponent = () => {
               id="loanAmount"
               type="number"
               min={1}
-              className="w-full rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 focus:border-sky-400 focus:ring-1 focus:ring-sky-400"
+              className="w-full rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-400"
               placeholder="Beløp i kroner, f.eks. 1000000"
               value={loanAmount || ""}
               onChange={(e) => setLoanAmount(Number(e.target.value))}
@@ -196,9 +237,10 @@ const DashbordComponent = () => {
           <button
             type="button"
             onClick={handleLoan}
-            className="rounded-lg bg-sky-400 px-5 py-2 text-sm font-semibold text-slate-950 shadow hover:bg-sky-300"
+            disabled={isWorking}
+            className="rounded-lg bg-sky-400 px-5 py-2 text-sm font-semibold text-slate-950 shadow hover:bg-sky-300 disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-300"
           >
-            Legg til lån
+            {isWorking ? "Lagrer..." : "Legg til lån"}
           </button>
         </div>
       </section>
@@ -231,20 +273,38 @@ const DashbordComponent = () => {
                   <h3 className="mt-3 text-base font-semibold text-white">{a.name}</h3>
                   <p className="text-xs text-slate-400">Kjønn: {a.gender}</p>
                   <p className="text-sm text-slate-200">
-                    Verdi:{" "}
-                    <span className="font-semibold text-emerald-300">
-                      {a.price.toLocaleString()} kr
-                    </span>
+                    Verdi: <span className="font-semibold text-emerald-300">{a.price.toLocaleString()} kr</span>
                   </p>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => handleSellAthlete(a)}
-                  className="mt-4 rounded-lg bg-gradient-to-r from-rose-400 to-orange-300 px-4 py-2 text-sm font-semibold text-slate-950 hover:from-rose-300 hover:to-orange-200"
-                >
-                  Selg spiller
-                </button>
+                {pendingSellId !== a.id ? (
+                  <button
+                    type="button"
+                    onClick={() => startSell(a.id)}
+                    className="mt-4 rounded-lg bg-gradient-to-r from-rose-400 to-orange-300 px-4 py-2 text-sm font-semibold text-slate-950 hover:from-rose-300 hover:to-orange-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-rose-300"
+                  >
+                    Selg spiller
+                  </button>
+                ) : (
+                  <div className="mt-4 flex flex-col gap-2">
+                    <button
+                      type="button"
+                      onClick={() => confirmSell(a)}
+                      disabled={isWorking}
+                      className="rounded-lg bg-gradient-to-r from-rose-400 to-orange-300 px-4 py-2 text-sm font-semibold text-slate-950 hover:from-rose-300 hover:to-orange-200 disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-rose-300"
+                    >
+                      {isWorking ? "Selger..." : `Bekreft salg (${a.name})`}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={cancelPending}
+                      className="rounded-lg border border-slate-700 bg-slate-950 px-4 py-2 text-sm font-semibold text-slate-100 hover:bg-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-slate-300"
+                    >
+                      Avbryt
+                    </button>
+                  </div>
+                )}
               </article>
             ))}
           </div>
@@ -252,7 +312,7 @@ const DashbordComponent = () => {
       </section>
       {/* SLUTT: kjøpte spillere */}
 
-      {/* START: tilgjengelige spillere */}
+      {/* START: kjøp spillere */}
       <section className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 shadow-lg">
         <h2 className="mb-4 text-lg font-semibold text-white">Kjøp spillere</h2>
 
@@ -279,30 +339,47 @@ const DashbordComponent = () => {
                   <h3 className="mt-3 text-base font-semibold text-white">{a.name}</h3>
                   <p className="text-xs text-slate-400">Kjønn: {a.gender}</p>
                   <p className="text-sm text-slate-200">
-                    Pris:{" "}
-                    <span className="font-semibold text-emerald-300">
-                      {a.price.toLocaleString()} kr
-                    </span>
+                    Pris: <span className="font-semibold text-emerald-300">{a.price.toLocaleString()} kr</span>
                   </p>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => handleBuyAthlete(a)}
-                  className="mt-4 rounded-lg bg-gradient-to-r from-emerald-400 to-sky-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:from-emerald-300 hover:to-sky-300"
-                >
-                  Kjøp spiller
-                </button>
+                {pendingBuyId !== a.id ? (
+                  <button
+                    type="button"
+                    onClick={() => startBuy(a.id)}
+                    className="mt-4 rounded-lg bg-gradient-to-r from-emerald-400 to-sky-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:from-emerald-300 hover:to-sky-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-300"
+                  >
+                    Kjøp spiller
+                  </button>
+                ) : (
+                  <div className="mt-4 flex flex-col gap-2">
+                    <button
+                      type="button"
+                      onClick={() => confirmBuy(a)}
+                      disabled={isWorking}
+                      className="rounded-lg bg-gradient-to-r from-emerald-400 to-sky-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:from-emerald-300 hover:to-sky-300 disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-300"
+                    >
+                      {isWorking ? "Kjøper..." : `Bekreft kjøp (${a.price.toLocaleString()} kr)`}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={cancelPending}
+                      className="rounded-lg border border-slate-700 bg-slate-950 px-4 py-2 text-sm font-semibold text-slate-100 hover:bg-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-slate-300"
+                    >
+                      Avbryt
+                    </button>
+                  </div>
+                )}
               </article>
             ))}
           </div>
         )}
       </section>
-      {/* SLUTT: tilgjengelige spillere */}
+      {/* SLUTT: kjøp spillere */}
     </section>
   );
 };
 
 export default DashbordComponent;
-
 // SLUTT: DashbordComponent

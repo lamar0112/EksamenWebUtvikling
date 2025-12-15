@@ -113,4 +113,27 @@ public class AthleteController : ControllerBase
             return StatusCode(500);
         }
     }
+    // START: Søk på navn (GetByName)
+[HttpGet("search")]
+public async Task<ActionResult<List<Athlete>>> SearchByName([FromQuery] string name)
+{
+    try
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return BadRequest("Name is required.");
+
+        var result = await _context.Athletes
+            .Where(a => a.Name.ToLower().Contains(name.ToLower()))
+            .ToListAsync();
+
+        return Ok(result);
+    }
+    catch
+    {
+        return StatusCode(500);
+    }
 }
+// SLUTT: Søk på navn (GetByName)
+
+}
+

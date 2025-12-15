@@ -1,11 +1,19 @@
 // START: AthleteEditPage – page for editing an athlete
-
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import type IAthlete from "../interfaces/IAthlete";
 import athleteService from "../services/athleteService";
 import AthleteFormEdit from "../components/athletes/AthleteFormEdit";
 import FeedbackMessage from "../components/common/FeedbackMessage";
+
+type FeedbackType = "" | "success" | "error";
+
+// START: type-safe felt-navn i stedet for string
+type AthleteField = keyof Pick<
+  IAthlete,
+  "name" | "gender" | "price" | "image" | "purchaseStatus"
+>;
+// SLUTT: type-safe felt-navn
 
 const AthleteEditPage = () => {
   const { id } = useParams();
@@ -15,7 +23,7 @@ const AthleteEditPage = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   const [feedbackMessage, setFeedbackMessage] = useState("");
-  const [feedbackType, setFeedbackType] = useState<"" | "success" | "error">("");
+  const [feedbackType, setFeedbackType] = useState<FeedbackType>("");
 
   // START: load athlete by id
   useEffect(() => {
@@ -42,14 +50,28 @@ const AthleteEditPage = () => {
   }, [id]);
   // SLUTT: load athlete by id
 
-  // START: handle field changes from form
-  const handleChange = (field: string, value: string | number) => {
+  // START: handle field changes (type-safe)
+  const handleChange = (field: AthleteField, value: string | number | boolean) => {
     if (!athlete) return;
 
-    setAthlete({
-      ...athlete,
-      [field]: field === "price" ? Number(value) : value,
-    });
+    // START: pris skal alltid være number
+    if (field === "price") {
+      const newPrice = Number(value);
+      setAthlete({ ...athlete, price: isNaN(newPrice) ? 0 : newPrice });
+      return;
+    }
+    // SLUTT: pris
+
+    // START: purchaseStatus skal være boolean
+    if (field === "purchaseStatus") {
+      setAthlete({ ...athlete, purchaseStatus: Boolean(value) });
+      return;
+    }
+    // SLUTT: purchaseStatus
+
+    // START: resten er string-felt
+    setAthlete({ ...athlete, [field]: String(value) } as IAthlete);
+    // SLUTT: resten
   };
   // SLUTT: handle field changes
 
@@ -108,7 +130,7 @@ const AthleteEditPage = () => {
 
           <Link
             to="/athletes"
-            className="inline-flex rounded-lg bg-sky-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-sky-300"
+            className="inline-flex rounded-lg bg-sky-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-sky-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-300"
           >
             Back to athletes
           </Link>
@@ -155,5 +177,4 @@ const AthleteEditPage = () => {
 };
 
 export default AthleteEditPage;
-
 // SLUTT: AthleteEditPage

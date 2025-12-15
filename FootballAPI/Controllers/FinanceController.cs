@@ -207,4 +207,18 @@ public class FinanceController : ControllerBase
         public decimal MoneySpent { get; set; }
         public int NumberOfPurchases { get; set; }
     }
+    [HttpGet("{id}")]
+public async Task<IActionResult> GetById(int id)
+{
+    try
+    {
+        var finance = await _context.Finances.FindAsync(id);
+        return finance == null ? NotFound() : Ok(finance);
+    }
+    catch
+    {
+        return StatusCode(500);
+    }
+}
+
 }

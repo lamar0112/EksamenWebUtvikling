@@ -1,11 +1,17 @@
 // START: AthleteFormEdit – form to edit an athlete
-
 import { useMemo } from "react";
 import type IAthlete from "../../interfaces/IAthlete";
 
+// START: type-safe felt-navn (må matche IAthlete)
+type AthleteField = keyof Pick<
+  IAthlete,
+  "name" | "gender" | "price" | "image" | "purchaseStatus"
+>;
+// SLUTT: type-safe felt-navn
+
 type Props = {
   athlete: IAthlete;
-  onChange: (field: string, value: string | number) => void;
+  onChange: (field: AthleteField, value: string | number | boolean) => void;
   onSave: () => void;
   onCancel: () => void;
 };
@@ -154,5 +160,4 @@ const AthleteFormEdit = ({ athlete, onChange, onSave, onCancel }: Props) => {
 };
 
 export default AthleteFormEdit;
-
 // SLUTT: AthleteFormEdit

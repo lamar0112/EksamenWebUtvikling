@@ -1,4 +1,4 @@
-// START: AthleteFormAdd – form to register a new athlete
+// START: AthleteFormAdd – form to register a new athlete (no alert/confirm)
 import { useMemo, useState, type ChangeEvent } from "react";
 import type IAthlete from "../../interfaces/IAthlete";
 import athleteService from "../../services/athleteService";
@@ -6,7 +6,7 @@ import imageUploadService from "../../services/imageUploadService";
 import FeedbackMessage from "../common/FeedbackMessage";
 
 const AthleteFormAdd = () => {
-  // START: state for new athlete
+  // START: state
   const [athlete, setAthlete] = useState<IAthlete>({
     id: 0,
     name: "",
@@ -15,21 +15,31 @@ const AthleteFormAdd = () => {
     image: "",
     purchaseStatus: false,
   });
-  // SLUTT: state for new athlete
 
   const [isUploading, setIsUploading] = useState(false);
-
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [feedbackType, setFeedbackType] = useState<"" | "success" | "error">("");
+  // SLUTT: state
 
-  // START: derived image url (for preview)
+  // START: preview url
   const imageUrl = useMemo(() => {
     if (!athlete.image) return "";
     return `http://localhost:5163/images/${athlete.image}`;
   }, [athlete.image]);
-  // SLUTT: derived image url
+  // SLUTT: preview url
 
-  // START: reset form after success
+  // START: update fields
+  const update = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+
+    setAthlete((prev) => ({
+      ...prev,
+      [name]: name === "price" ? Number(value) : value,
+    }));
+  };
+  // SLUTT: update fields
+
+  // START: reset form
   const resetForm = () => {
     setAthlete({
       id: 0,
@@ -42,67 +52,51 @@ const AthleteFormAdd = () => {
   };
   // SLUTT: reset form
 
-  // START: update text/number fields
-  const update = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-
-    setAthlete((prev) => ({
-      ...prev,
-      [name]: name === "price" ? Number(value) : value,
-    }));
-  };
-  // SLUTT: update fields
-
-  // START: upload image to backend (ImageUploadController)
+  // START: upload image
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
 
     const file = e.target.files[0];
-
     setIsUploading(true);
+
     const response = await imageUploadService.uploadImage(file);
+
     setIsUploading(false);
 
     if (response.success) {
-      setAthlete((prev) => ({ ...prev, image: file.name }));
-      setFeedbackMessage("Image uploaded.");
+      setAthlete((prev) => ({ ...prev, image: response.fileName }));
       setFeedbackType("success");
+      setFeedbackMessage("Image uploaded.");
     } else {
-      setFeedbackMessage("Could not upload image.");
       setFeedbackType("error");
+      setFeedbackMessage("Could not upload image.");
     }
   };
   // SLUTT: upload image
 
-  // START: save athlete via API
+  // START: save athlete
   const save = async () => {
-    if (athlete.name.trim() === "") {
-      setFeedbackMessage("Name is required.");
+    if (athlete.name.trim() === "" || athlete.gender.trim() === "") {
       setFeedbackType("error");
-      return;
-    }
-
-    if (athlete.gender.trim() === "") {
-      setFeedbackMessage("Gender is required.");
-      setFeedbackType("error");
+      setFeedbackMessage("Name and gender are required.");
       return;
     }
 
     if (athlete.price <= 0) {
-      setFeedbackMessage("Price must be greater than 0.");
       setFeedbackType("error");
+      setFeedbackMessage("Price must be greater than 0.");
       return;
     }
 
     const response = await athleteService.postAthlete(athlete);
 
     if (response.success) {
-      setFeedbackMessage("Athlete added.");
       setFeedbackType("success");
+      setFeedbackMessage("Athlete added.");
       resetForm();
     } else {
-      setFeedbackMessage("Could not save athlete.");
       setFeedbackType("error");
+      setFeedbackMessage("Could not save athlete.");
     }
   };
   // SLUTT: save athlete
@@ -113,74 +107,57 @@ const AthleteFormAdd = () => {
       <div>
         <h2 className="text-lg font-semibold text-white">New athlete</h2>
         <p className="mt-1 text-sm text-slate-400">
-          Add player info and upload an image (optional).
+          Add player info and optionally upload an image.
         </p>
       </div>
       {/* SLUTT: heading */}
 
       {/* START: feedback */}
-      {feedbackType && (
-        <FeedbackMessage type={feedbackType} message={feedbackMessage} />
-      )}
+      {feedbackType && <FeedbackMessage type={feedbackType} message={feedbackMessage} />}
       {/* SLUTT: feedback */}
 
       {/* START: fields */}
       <div className="grid gap-4 md:grid-cols-3">
-        {/* Name */}
         <div className="space-y-1">
-          <label
-            htmlFor="athlete-name"
-            className="block text-xs font-medium text-slate-400"
-          >
+          <label htmlFor="athlete-name" className="block text-xs font-medium text-slate-400">
             Name
           </label>
           <input
             id="athlete-name"
-            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-400"
             name="name"
-            placeholder="Player name"
+            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-400"
             value={athlete.name}
             onChange={update}
             required
           />
         </div>
 
-        {/* Gender */}
         <div className="space-y-1">
-          <label
-            htmlFor="athlete-gender"
-            className="block text-xs font-medium text-slate-400"
-          >
+          <label htmlFor="athlete-gender" className="block text-xs font-medium text-slate-400">
             Gender
           </label>
           <input
             id="athlete-gender"
-            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-400"
             name="gender"
-            placeholder="Male / Female"
+            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-400"
             value={athlete.gender}
             onChange={update}
             required
           />
         </div>
 
-        {/* Price */}
         <div className="space-y-1">
-          <label
-            htmlFor="athlete-price"
-            className="block text-xs font-medium text-slate-400"
-          >
+          <label htmlFor="athlete-price" className="block text-xs font-medium text-slate-400">
             Price (NOK)
           </label>
           <input
             id="athlete-price"
-            type="number"
-            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-400"
             name="price"
-            placeholder="e.g. 2500000"
+            type="number"
+            min={1}
+            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-400"
             value={athlete.price || ""}
             onChange={update}
-            min={0}
             required
           />
         </div>
@@ -190,10 +167,7 @@ const AthleteFormAdd = () => {
       {/* START: image upload + preview */}
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
-          <label
-            htmlFor="athlete-image"
-            className="block text-xs font-medium text-slate-400"
-          >
+          <label htmlFor="athlete-image" className="block text-xs font-medium text-slate-400">
             Upload image (optional)
           </label>
           <input
@@ -204,14 +178,11 @@ const AthleteFormAdd = () => {
             className="block w-full text-xs text-slate-200 file:mr-3 file:rounded-md file:border-0 file:bg-slate-800 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-slate-100 hover:file:bg-slate-700"
           />
 
-          {isUploading && (
-            <p className="text-[11px] text-sky-300">Uploading image...</p>
-          )}
+          {isUploading && <p className="text-[11px] text-sky-300">Uploading image...</p>}
 
           {athlete.image && (
             <p className="text-[11px] text-slate-400">
-              Saved filename:{" "}
-              <span className="font-semibold text-slate-200">{athlete.image}</span>
+              Saved filename: <span className="font-semibold text-slate-200">{athlete.image}</span>
             </p>
           )}
         </div>
@@ -238,8 +209,8 @@ const AthleteFormAdd = () => {
       {/* START: actions */}
       <div className="flex flex-wrap gap-3">
         <button
-          onClick={save}
           type="button"
+          onClick={save}
           className="rounded-lg bg-sky-400 px-5 py-2 text-sm font-semibold text-slate-950 shadow hover:bg-sky-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-300"
         >
           Save athlete

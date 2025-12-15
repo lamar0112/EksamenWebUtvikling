@@ -1,30 +1,24 @@
-// ========================= START venueService.ts ==========================
-// Service for å snakke med VenueController i backend.
-// Alle HTTP-kall for venues ligger samlet her.
-
+// START: venueService – HTTP calls to VenueController
 import axios from "axios";
 import type IVenue from "../interfaces/IVenue";
 
-// Grunn-URL til Venue API-et
 const endpoint = "http://localhost:5163/api/venue";
 
-// Enkle typer for svar fra API-et
-interface IResponseList {
+interface IListResponse {
   success: boolean;
   data: IVenue[] | null;
 }
 
-interface IVenueItemResponse {
+interface IItemResponse {
   success: boolean;
   data: IVenue | null;
 }
 
-interface IDefaultResponse {
+interface IActionResponse {
   success: boolean;
 }
 
-// Henter alle venues (GET /api/venue)
-const getAllVenues = async (): Promise<IResponseList> => {
+const getAllVenues = async (): Promise<IListResponse> => {
   try {
     const response = await axios.get(endpoint);
     return { success: true, data: response.data };
@@ -33,8 +27,7 @@ const getAllVenues = async (): Promise<IResponseList> => {
   }
 };
 
-// Henter én venue basert på id (GET /api/venue/{id})
-const getVenueById = async (id: number): Promise<IVenueItemResponse> => {
+const getVenueById = async (id: number): Promise<IItemResponse> => {
   try {
     const response = await axios.get(`${endpoint}/${id}`);
     return { success: true, data: response.data };
@@ -43,8 +36,7 @@ const getVenueById = async (id: number): Promise<IVenueItemResponse> => {
   }
 };
 
-// Lager en ny venue (POST /api/venue)
-const postVenue = async (venue: IVenue): Promise<IDefaultResponse> => {
+const postVenue = async (venue: IVenue): Promise<IActionResponse> => {
   try {
     await axios.post(endpoint, venue);
     return { success: true };
@@ -53,8 +45,7 @@ const postVenue = async (venue: IVenue): Promise<IDefaultResponse> => {
   }
 };
 
-// Oppdaterer en venue (PUT /api/venue)
-const putVenue = async (venue: IVenue): Promise<IDefaultResponse> => {
+const putVenue = async (venue: IVenue): Promise<IActionResponse> => {
   try {
     await axios.put(endpoint, venue);
     return { success: true };
@@ -63,8 +54,7 @@ const putVenue = async (venue: IVenue): Promise<IDefaultResponse> => {
   }
 };
 
-// Sletter en venue (DELETE /api/venue/{id})
-const deleteVenue = async (id: number): Promise<IDefaultResponse> => {
+const deleteVenue = async (id: number): Promise<IActionResponse> => {
   try {
     await axios.delete(`${endpoint}/${id}`);
     return { success: true };
@@ -73,7 +63,6 @@ const deleteVenue = async (id: number): Promise<IDefaultResponse> => {
   }
 };
 
-// Eksporterer metodene
 export default {
   getAllVenues,
   getVenueById,
@@ -81,5 +70,4 @@ export default {
   putVenue,
   deleteVenue,
 };
-
-// ========================== SLUTT venueService.ts ==========================
+// SLUTT: venueService

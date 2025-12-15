@@ -1,5 +1,4 @@
-// START: VenuePage – overview for venues (list, search, edit and delete)
-
+// START: VenuePage – overview for venues (list, search inside VenueList)
 import { Link } from "react-router-dom";
 import VenueList from "../components/venues/VenueList";
 
@@ -44,5 +43,4 @@ const VenuePage = () => {
 };
 
 export default VenuePage;
-
 // SLUTT: VenuePage
