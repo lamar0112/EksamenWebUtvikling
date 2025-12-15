@@ -17,8 +17,8 @@ body {
   margin: 0;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
-  background-color: #020617; /* slate-950 */
-  color: #e5e7eb; /* slate-200 */
+  background-color: #020617;
+  color: #e5e7eb;
 }
 
 a {
@@ -26,102 +26,166 @@ a {
 }
 /* SLUTT: Global stil */
 
-/* ================= HomePage – bakgrunn + spotlight + ball-card ================= */
+/* ========================= */
+/* START: Home (BEM)         */
+/* ========================= */
 
-.homepage-background {
-  background-image: url("/images/stadium.jpg");
-  background-size: cover;
-  background-position: center;
-  filter: saturate(1.1) contrast(1.05);
-  transform: scale(1.02);
+.home {
+  min-height: calc(100vh - 3.5rem);
+  color: #e5e7eb;
 }
 
-.homepage-overlay {
-  background: radial-gradient(
-      80% 80% at 50% 40%,
-      rgba(2, 6, 23, 0.15),
-      rgba(2, 6, 23, 0.75)
+/* START: hero container */
+.home__hero {
+  position: relative;
+  height: calc(100vh - 3.5rem);
+  overflow: hidden;
+}
+/* SLUTT: hero container */
+
+/* START: bakgrunn (stadion) */
+.home__bg {
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+
+  background-image: url("/images/stadium.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center 80%;
+
+  /* Liten boost (ikke for “AI-advanced”) */
+  filter: saturate(1.15) contrast(1.08) brightness(1.05);
+}
+/* SLUTT: bakgrunn (stadion) */
+
+/* START: spotlight (PNG som overlay) */
+.home__spotlight {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+
+  background-image: url("/images/spotlight.png");
+  background-repeat: no-repeat;
+  background-size: 1150px auto;
+  background-position: 50% 0;
+
+  /* FIX: lavere opacity så den ikke blir “svart matte” */
+  opacity: 0.45;
+
+  /* Enkel animasjon (pensum) */
+  animation: spotlightMove 8s ease-in-out infinite,
+             spotlightFlicker 3.2s steps(2, end) infinite;
+}
+/* SLUTT: spotlight */
+
+/* START: overlay for kontrast (gjør teksten lesbar) */
+.home__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+
+  /* FIX: litt lysere overlay, så siden ikke blir for mørk */
+  background:
+    radial-gradient(
+      70% 70% at 50% 45%,
+      rgba(2, 6, 23, 0.06),
+      rgba(2, 6, 23, 0.30)
     ),
     linear-gradient(
       to bottom,
-      rgba(2, 6, 23, 0.55),
-      rgba(2, 6, 23, 0.9)
+      rgba(2, 6, 23, 0.10),
+      rgba(2, 6, 23, 0.40)
     );
 }
+/* SLUTT: overlay */
 
-.homepage-spotlight {
-  background-image: url("/images/spotlight.png");
-  background-repeat: no-repeat;
-  background-size: 900px auto;
-  background-position: center top;
-  opacity: 0.55;
-  mix-blend-mode: screen;
-  animation: spotlightMove 7.5s ease-in-out infinite,
-    spotlightFlicker 3.2s steps(2, end) infinite;
+/* START: tekst i himmel */
+.home__brand {
+  position: absolute;
+  top: 175px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+
+  /* Blend inn i himmelen, men lesbar */
+  color: rgba(226, 232, 240, 0.55);
+
+  text-shadow: 0 0 14px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+}
+/* SLUTT: tekst i himmel */
+
+/* START: tekst på ball */
+.home__content {
+  position: relative;
+  height: 100%;
+
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+
+  padding: 0 16px;
 }
 
-.ball-card {
-  border-radius: 9999px;
-  padding: 34px 26px;
-  background: radial-gradient(
-      60% 60% at 50% 35%,
-      rgba(255, 255, 255, 0.08),
-      rgba(15, 23, 42, 0.80)
-    );
-  border: 1px solid rgba(148, 163, 184, 0.25);
-  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.55),
-    0 0 40px rgba(56, 189, 248, 0.08);
-  backdrop-filter: blur(6px);
-  transition: transform 180ms ease, box-shadow 180ms ease;
+/* Plasser teksten over ballen i bildet */
+.home__title {
+  width: 365px;
+  text-align: center;
+
+  /* Juster plassering på ballen */
+  transform: translate(0px, -145px);
+
+  font-size: 28px;
+  line-height: 1.15;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+
+  color: rgba(255, 255, 255, 0.92);
+  text-shadow: 0 10px 26px rgba(0, 0, 0, 0.45);
 }
 
-.ball-card:hover {
-  transform: scale(1.03);
-  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.6),
-    0 0 55px rgba(56, 189, 248, 0.12);
+/* Fargeaksenter */
+.home__title--squad {
+  color: rgba(56, 189, 248, 0.88);
 }
 
+.home__title--stadiums {
+  color: rgba(192, 132, 252, 0.88);
+}
+
+.home__title--finances {
+  color: rgba(52, 211, 153, 0.88);
+}
+/* SLUTT: tekst på ball */
+
+/* START: animasjoner */
 @keyframes spotlightMove {
-  0% {
-    transform: translateX(-1.5%) translateY(0);
-    opacity: 0.5;
-  }
-  50% {
-    transform: translateX(1.5%) translateY(0.2%);
-    opacity: 0.62;
-  }
-  100% {
-    transform: translateX(-1.5%) translateY(0);
-    opacity: 0.5;
-  }
+  0%   { transform: translateX(-1%); }
+  50%  { transform: translateX(1%); }
+  100% { transform: translateX(-1%); }
 }
 
 @keyframes spotlightFlicker {
-  0% {
-    filter: brightness(1);
-  }
-  50% {
-    filter: brightness(1.07);
-  }
-  100% {
-    filter: brightness(1);
-  }
+  0%   { opacity: 0.42; }
+  50%  { opacity: 0.52; }
+  100% { opacity: 0.42; }
 }
+/* SLUTT: animasjoner */
 
+/* START: universell utforming (reduced motion) */
 @media (prefers-reduced-motion: reduce) {
-  .homepage-spotlight {
-    animation: none !important;
-  }
-
-  .homepage-background {
-    transform: none;
-  }
-
-  .ball-card {
-    transition: none;
-  }
-
-  .ball-card:hover {
-    transform: none;
+  .home__spotlight {
+    animation: none;
   }
 }
+/* SLUTT: universell utforming */
+
+/* ========================= */
+/* SLUTT: Home (BEM)         */
+/* ========================= */
