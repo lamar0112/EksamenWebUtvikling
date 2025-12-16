@@ -4,10 +4,10 @@
 // NB: id er optional fordi buy/sell-endepunktene kan returnere en DTO uten id.
 
 export default interface IFinance {
-  id?: number;              // optional (DTO fra buy/sell kan mangle id)
-  moneyLeft: number;        // hvor mye penger klubben har igjen
-  moneySpent: number;       // hvor mye som er brukt totalt
-  numberOfPurchases: number; // antall spillere kjøpt / i troppen
+  id?: number;             
+  moneyLeft: number;      
+  moneySpent: number;       
+  numberOfPurchases: number; 
 }
 
 // ========================== SLUTT IFinance.ts =========================

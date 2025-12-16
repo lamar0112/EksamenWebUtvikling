@@ -1,9 +1,11 @@
-// START: AthleteFormAdd – form to register a new athlete (no alert/confirm)
+// START: AthleteFormAdd – form to register a new athlete (with feedback)
 import { useMemo, useState, type ChangeEvent } from "react";
 import type IAthlete from "../../interfaces/IAthlete";
 import athleteService from "../../services/athleteService";
 import imageUploadService from "../../services/imageUploadService";
 import FeedbackMessage from "../common/FeedbackMessage";
+
+type FeedbackType = "" | "success" | "error";
 
 const AthleteFormAdd = () => {
   // START: state
@@ -17,10 +19,10 @@ const AthleteFormAdd = () => {
   });
 
   const [isUploading, setIsUploading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const [feedbackType, setFeedbackType] = useState<FeedbackType>("");
   const [feedbackMessage, setFeedbackMessage] = useState("");
-  const [feedbackType, setFeedbackType] = useState<"" | "success" | "error">(
-    ""
-  );
   // SLUTT: state
 
   // START: preview url
@@ -60,18 +62,20 @@ const AthleteFormAdd = () => {
 
     const file = e.target.files[0];
     setIsUploading(true);
+    setFeedbackType("");
+    setFeedbackMessage("");
 
-    const response = await imageUploadService.uploadImage(file);
+    const response = await imageUploadService.uploadImage(file, "athletes");
 
     setIsUploading(false);
 
-    if (response.success) {
+    if (response.success && response.fileName) {
       setAthlete((prev) => ({ ...prev, image: response.fileName }));
       setFeedbackType("success");
       setFeedbackMessage("Image uploaded.");
     } else {
       setFeedbackType("error");
-      setFeedbackMessage("Could not upload image.");
+      setFeedbackMessage(response.errorMessage || "Could not upload image.");
     }
   };
   // SLUTT: upload image
@@ -90,6 +94,8 @@ const AthleteFormAdd = () => {
       return;
     }
 
+    setIsSaving(true);
+
     const response = await athleteService.postAthlete(athlete);
 
     if (response.success) {
@@ -100,6 +106,8 @@ const AthleteFormAdd = () => {
       setFeedbackType("error");
       setFeedbackMessage("Could not save athlete.");
     }
+
+    setIsSaving(false);
   };
   // SLUTT: save athlete
 
@@ -201,9 +209,7 @@ const AthleteFormAdd = () => {
           {athlete.image && (
             <p className="text-[11px] text-slate-400">
               Saved filename:{" "}
-              <span className="font-semibold text-slate-200">
-                {athlete.image}
-              </span>
+              <span className="font-semibold text-slate-200">{athlete.image}</span>
             </p>
           )}
         </div>
@@ -215,7 +221,7 @@ const AthleteFormAdd = () => {
             <img
               src={imageUrl}
               alt={`Preview of ${athlete.name || "uploaded athlete"}`}
-              className="mt-2 h-44 w-full rounded-md object-contain bg-slate-900/40 p-2"
+              className="mt-2 h-44 w-full rounded-md bg-slate-900/40 object-contain p-2"
               loading="lazy"
             />
           ) : (
@@ -232,9 +238,10 @@ const AthleteFormAdd = () => {
         <button
           type="button"
           onClick={save}
-          className="rounded-lg bg-sky-400 px-5 py-2 text-sm font-semibold text-slate-950 shadow hover:bg-sky-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-300"
+          disabled={isSaving || isUploading}
+          className="rounded-lg bg-sky-400 px-5 py-2 text-sm font-semibold text-slate-950 shadow hover:bg-sky-300 disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-300"
         >
-          Save athlete
+          {isSaving ? "Saving..." : "Save athlete"}
         </button>
 
         <button

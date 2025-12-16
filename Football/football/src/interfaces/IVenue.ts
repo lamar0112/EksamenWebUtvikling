@@ -3,10 +3,11 @@
 // Dette objektet holder info om stadioner.
 
 export default interface IVenue {
-  id: number;          // id i databasen
-  name: string;        // navn på stadion
-  capacity: number;    // hvor mange som får plass
-  image: string;       // filnavn på stadion-bilde
+  id: number;
+  name: string;
+  capacity: number;
+  image: string; 
 }
+
 
 // ========================== SLUTT IVenue.ts ===========================

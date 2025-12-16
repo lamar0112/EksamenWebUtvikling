@@ -45,18 +45,20 @@ const VenueFormAdd = () => {
 
     const file = e.target.files[0];
     setIsUploading(true);
+    setFeedbackType("");
+    setFeedbackMessage("");
 
-    const response = await imageUploadService.uploadImage(file);
+    const response = await imageUploadService.uploadImage(file, "venues");
 
     setIsUploading(false);
 
-    if (response.success) {
-      setVenue((prev) => ({ ...prev, image: file.name }));
+    if (response.success && response.fileName) {
+      setVenue((prev) => ({ ...prev, image: response.fileName }));
       setFeedbackType("success");
       setFeedbackMessage("Image uploaded.");
     } else {
       setFeedbackType("error");
-      setFeedbackMessage("Could not upload image.");
+      setFeedbackMessage(response.errorMessage || "Could not upload image.");
     }
   };
   // SLUTT: upload image
@@ -144,7 +146,7 @@ const VenueFormAdd = () => {
             placeholder="e.g. 45000"
             value={venue.capacity || ""}
             onChange={update}
-            min={0}
+            min={1}
             required
           />
         </div>
@@ -175,9 +177,7 @@ const VenueFormAdd = () => {
           {venue.image && (
             <p className="text-[11px] text-slate-400">
               Saved filename:{" "}
-              <span className="font-semibold text-slate-200">
-                {venue.image}
-              </span>
+              <span className="font-semibold text-slate-200">{venue.image}</span>
             </p>
           )}
         </div>
@@ -189,7 +189,7 @@ const VenueFormAdd = () => {
             <img
               src={imageUrl}
               alt={`Preview of ${venue.name || "uploaded venue"}`}
-              className="mt-2 h-44 w-full rounded-md object-contain bg-slate-900/40 p-2"
+              className="mt-2 h-44 w-full rounded-md bg-slate-900/40 object-contain p-2"
               loading="lazy"
             />
           ) : (

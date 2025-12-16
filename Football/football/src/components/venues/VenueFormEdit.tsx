@@ -21,10 +21,13 @@ const VenueFormEdit = ({ venue, onChange, onSave, onCancel }: Props) => {
     if (!e.target.files || e.target.files.length === 0) return;
 
     const file = e.target.files[0];
-    const response = await imageUploadService.uploadImage(file);
 
-    if (response.success) {
-      onChange("image", file.name);
+    // 1) Må sende folder ("venues") slik at backend treffer riktig endpoint
+    const response = await imageUploadService.uploadImage(file, "venues");
+
+    // 2) Lagre filnavnet som backend returnerer
+    if (response.success && response.fileName) {
+      onChange("image", response.fileName);
     }
   };
   // SLUTT: upload new image
@@ -100,9 +103,7 @@ const VenueFormEdit = ({ venue, onChange, onSave, onCancel }: Props) => {
           {venue.image && (
             <p className="text-[11px] text-slate-400">
               Saved filename:{" "}
-              <span className="font-semibold text-slate-200">
-                {venue.image}
-              </span>
+              <span className="font-semibold text-slate-200">{venue.image}</span>
             </p>
           )}
         </div>
