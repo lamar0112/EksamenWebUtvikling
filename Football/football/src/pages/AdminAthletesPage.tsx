@@ -10,11 +10,12 @@ const AdminAthletesPage = () => {
         <header className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
           <div>
             <p className="mb-2 text-xs font-semibold uppercase tracking-[0.3em] text-sky-300">
-              Player Management
+              Athlete Management
             </p>
             <h1 className="text-2xl font-bold text-white">Athletes</h1>
             <p className="mt-1 text-sm text-slate-400">
-              View, search, edit and manage your squad. Sell players without deleting them.
+              View, search, edit and manage your squad. Sell athletes without
+              deleting them.
             </p>
           </div>
 

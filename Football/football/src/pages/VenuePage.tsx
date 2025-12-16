@@ -10,11 +10,11 @@ const VenuePage = () => {
         <header className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
           <div>
             <p className="mb-2 text-xs font-semibold uppercase tracking-[0.3em] text-purple-300">
-              Stadium Management
+              Venue Management
             </p>
             <h1 className="text-2xl font-bold text-white">Venues</h1>
             <p className="mt-1 text-sm text-slate-400">
-              View, search, edit and manage stadiums.
+              View, search, edit and manage venues.
             </p>
           </div>
 
@@ -29,7 +29,9 @@ const VenuePage = () => {
 
         {/* START: list */}
         <section className="rounded-xl border border-slate-800 bg-slate-900/40 p-5 shadow-lg">
-          <h2 className="mb-1 text-lg font-semibold text-white">Registered venues</h2>
+          <h2 className="mb-1 text-lg font-semibold text-white">
+            Registered venues
+          </h2>
           <p className="mb-4 text-sm text-slate-400">
             Keep venue names consistent and upload an image if available.
           </p>

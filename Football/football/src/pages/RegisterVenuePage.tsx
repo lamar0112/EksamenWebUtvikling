@@ -9,11 +9,11 @@ const VenueRegisterPage = () => {
         {/* START: header */}
         <header className="space-y-2">
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-purple-300">
-            Stadium Management
+            Venue Management
           </p>
           <h1 className="text-2xl font-bold text-white">Register venue</h1>
           <p className="text-sm text-slate-400">
-            Add a new stadium to the system.
+            Add a new venue to the system.
           </p>
 
           <Link

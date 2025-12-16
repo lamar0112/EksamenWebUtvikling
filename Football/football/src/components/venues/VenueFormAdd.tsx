@@ -23,7 +23,7 @@ const VenueFormAdd = () => {
 
   const imageUrl = useMemo(() => {
     if (!venue.image) return "";
-    return `http://localhost:5163/images/${venue.image}`;
+    return `http://localhost:5163/images/venues/${venue.image}`;
   }, [venue.image]);
 
   const resetForm = () => {
@@ -98,7 +98,7 @@ const VenueFormAdd = () => {
       <div>
         <h2 className="text-lg font-semibold text-white">New venue</h2>
         <p className="mt-1 text-sm text-slate-400">
-          Add stadium name, capacity and an optional image.
+          Add venue name, capacity and an optional image.
         </p>
       </div>
       {/* SLUTT: heading */}
@@ -112,7 +112,10 @@ const VenueFormAdd = () => {
       {/* START: fields */}
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-1">
-          <label htmlFor="venue-name" className="block text-xs font-medium text-slate-400">
+          <label
+            htmlFor="venue-name"
+            className="block text-xs font-medium text-slate-400"
+          >
             Venue name
           </label>
           <input
@@ -127,7 +130,10 @@ const VenueFormAdd = () => {
         </div>
 
         <div className="space-y-1">
-          <label htmlFor="venue-capacity" className="block text-xs font-medium text-slate-400">
+          <label
+            htmlFor="venue-capacity"
+            className="block text-xs font-medium text-slate-400"
+          >
             Capacity
           </label>
           <input
@@ -148,7 +154,10 @@ const VenueFormAdd = () => {
       {/* START: image upload + preview */}
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
-          <label htmlFor="venue-image" className="block text-xs font-medium text-slate-400">
+          <label
+            htmlFor="venue-image"
+            className="block text-xs font-medium text-slate-400"
+          >
             Upload image (optional)
           </label>
           <input
@@ -166,7 +175,9 @@ const VenueFormAdd = () => {
           {venue.image && (
             <p className="text-[11px] text-slate-400">
               Saved filename:{" "}
-              <span className="font-semibold text-slate-200">{venue.image}</span>
+              <span className="font-semibold text-slate-200">
+                {venue.image}
+              </span>
             </p>
           )}
         </div>

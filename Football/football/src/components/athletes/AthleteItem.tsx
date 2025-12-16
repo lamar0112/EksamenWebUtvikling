@@ -20,7 +20,7 @@ const AthleteItem = ({ athlete, onDelete, onSell, onFeedback }: Props) => {
   // START: derived image url
   const imageUrl = useMemo(() => {
     if (!athlete.image) return "";
-    return `http://localhost:5163/images/${athlete.image}`;
+    return `http://localhost:5163/images/athletes/${athlete.image}`;
   }, [athlete.image]);
   // SLUTT: derived image url
 

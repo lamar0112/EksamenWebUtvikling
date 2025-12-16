@@ -133,7 +133,7 @@ const VenueEditPage = () => {
           </p>
           <h1 className="text-2xl font-bold text-white">Edit venue</h1>
           <p className="mt-1 text-sm text-slate-400">
-            Update the stadium information below.
+            Update the venue information below.
           </p>
         </header>
         {/* SLUTT: header */}

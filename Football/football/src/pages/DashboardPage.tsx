@@ -9,7 +9,7 @@ const DashboardPage = () => {
         <header>
           <h1 className="text-2xl font-bold text-white">Dashboard</h1>
           <p className="text-sm text-slate-400">
-            View club finances, take loans and buy or sell players.
+            View club finances, apply for loan, purchase and sell athletes.
           </p>
         </header>
         {/* SLUTT: heading */}

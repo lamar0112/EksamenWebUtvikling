@@ -131,10 +131,13 @@ const AthleteList = () => {
     <section className="space-y-6" aria-label="Athlete list">
       {/* START: controls (ONE place for all search) */}
       <section className="rounded-xl border border-slate-800 bg-slate-900/40 p-5 shadow-lg">
-        <h2 className="mb-1 text-lg font-semibold text-white">Squad & Market</h2>
+        <h2 className="mb-1 text-lg font-semibold text-white">
+          Squad & Market
+        </h2>
         <p className="mb-4 text-sm text-slate-400">
-          Players you own appear in <span className="text-emerald-300">Squad</span>. Players available appear in{" "}
-          <span className="text-sky-300">Market</span>.
+          Athletes you own appear in{" "}
+          <span className="text-emerald-300"> The squad</span>. Athletes
+          available appear in <span className="text-sky-300">The market</span>.
         </p>
 
         <div className="grid gap-4 md:grid-cols-3">
@@ -248,11 +251,15 @@ const AthleteList = () => {
                   (available)
                 </span>
               </h3>
-              <p className="text-xs text-slate-400">{marketAthletes.length} players</p>
+              <p className="text-xs text-slate-400">
+                {marketAthletes.length} players
+              </p>
             </div>
 
             {marketAthletes.length === 0 ? (
-              <p className="text-sm text-slate-400">No players available in the market.</p>
+              <p className="text-sm text-slate-400">
+                No players available in the market.
+              </p>
             ) : (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {marketAthletes.map((a) => (
@@ -277,12 +284,15 @@ const AthleteList = () => {
                   (owned)
                 </span>
               </h3>
-              <p className="text-xs text-slate-400">{squadAthletes.length} players</p>
+              <p className="text-xs text-slate-400">
+                {squadAthletes.length} players
+              </p>
             </div>
 
             {squadAthletes.length === 0 ? (
               <p className="text-sm text-slate-400">
-                You have not purchased any players yet. Buy players from the Dashboard.
+                You have not purchased any players yet. Buy players from the
+                Dashboard.
               </p>
             ) : (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

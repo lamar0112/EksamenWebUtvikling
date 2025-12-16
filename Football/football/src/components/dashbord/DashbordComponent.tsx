@@ -81,7 +81,7 @@ const DashbordComponent = () => {
     if (!finance) return;
 
     if (loanAmount <= 0) {
-      showFeedback("Lånebeløpet må være større enn 0.", "error");
+      showFeedback("Loan amount must be greater then 0.", "error");
       return;
     }
 
@@ -92,9 +92,9 @@ const DashbordComponent = () => {
     if (response.success && response.data) {
       setFinance(response.data);
       setLoanAmount(0);
-      showFeedback("Lån registrert.", "success");
+      showFeedback("Loan registered.", "success");
     } else {
-      showFeedback("Kunne ikke registrere lån.", "error");
+      showFeedback("Could not register loan.", "error");
     }
 
     setIsWorking(false);
@@ -127,7 +127,10 @@ const DashbordComponent = () => {
     if (!finance) return;
 
     if (finance.moneyLeft < athlete.price) {
-      showFeedback("Du har ikke nok penger til å kjøpe denne spilleren.", "error");
+      showFeedback(
+        "Du har ikke nok penger til å kjøpe denne spilleren.",
+        "error"
+      );
       setPendingBuyId(null);
       return;
     }
@@ -138,7 +141,7 @@ const DashbordComponent = () => {
 
     if (response.success) {
       await Promise.all([loadFinance(), loadAthletes()]);
-      showFeedback(`${athlete.name} er kjøpt.`, "success");
+      showFeedback(`${athlete.name} is purchased.`, "success");
     } else {
       showFeedback("Kunne ikke kjøpe spiller.", "error");
     }
@@ -159,7 +162,7 @@ const DashbordComponent = () => {
     if (response.success && response.data) {
       setFinance(response.data);
       await loadAthletes();
-      showFeedback(`${athlete.name} er solgt.`, "success");
+      showFeedback(`${athlete.name} is sold.`, "success");
     } else {
       showFeedback("Kunne ikke selge spiller.", "error");
     }
@@ -173,7 +176,7 @@ const DashbordComponent = () => {
   if (isLoading || !finance) {
     return (
       <section className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 shadow-lg">
-        <p className="text-sm text-slate-300">Laster dashboard-data...</p>
+        <p className="text-sm text-slate-300">Loading dashboard data...</p>
       </section>
     );
   }
@@ -182,32 +185,34 @@ const DashbordComponent = () => {
   return (
     <section className="space-y-8">
       {/* START: feedback */}
-      {feedbackType && <FeedbackMessage type={feedbackType} message={feedbackMessage} />}
+      {feedbackType && (
+        <FeedbackMessage type={feedbackType} message={feedbackMessage} />
+      )}
       {/* SLUTT: feedback */}
 
       {/* START: økonomi */}
       <section className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 shadow-lg">
-        <h2 className="mb-4 text-xl font-semibold text-white">Klubbens økonomi</h2>
+        <h2 className="mb-4 text-xl font-semibold text-white">Clubs Finance</h2>
 
         <div className="grid gap-4 md:grid-cols-3">
           <div className="rounded-lg bg-slate-950/60 p-4">
-            <p className="text-sm text-slate-400">Penger igjen</p>
+            <p className="text-sm text-slate-400">Money Left</p>
             <p className="mt-1 text-lg font-semibold text-emerald-300">
-              {finance.moneyLeft.toLocaleString()} kr
+              {finance.moneyLeft.toLocaleString()} Kr
             </p>
           </div>
 
           <div className="rounded-lg bg-slate-950/60 p-4">
-            <p className="text-sm text-slate-400">Spillere i troppen</p>
+            <p className="text-sm text-slate-400">Squad Size</p>
             <p className="mt-1 text-lg font-semibold text-sky-300">
               {finance.numberOfPurchases}
             </p>
           </div>
 
           <div className="rounded-lg bg-slate-950/60 p-4">
-            <p className="text-sm text-slate-400">Penger brukt</p>
+            <p className="text-sm text-slate-400">Money Spent</p>
             <p className="mt-1 text-lg font-semibold text-rose-300">
-              {finance.moneySpent.toLocaleString()} kr
+              {finance.moneySpent.toLocaleString()} Kr
             </p>
           </div>
         </div>
@@ -216,19 +221,24 @@ const DashbordComponent = () => {
 
       {/* START: lån */}
       <section className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 shadow-lg">
-        <h2 className="mb-4 text-lg font-semibold text-white">Ta opp lån</h2>
+        <h2 className="mb-4 text-lg font-semibold text-white">
+          Apply For Loan
+        </h2>
 
         <div className="flex flex-col gap-3 md:flex-row md:items-end">
           <div className="flex-1">
-            <label htmlFor="loanAmount" className="mb-1 block text-xs font-medium text-slate-400">
-              Lånebeløp i kroner
+            <label
+              htmlFor="loanAmount"
+              className="mb-1 block text-xs font-medium text-slate-400"
+            >
+              Loan Amount NOK
             </label>
             <input
               id="loanAmount"
               type="number"
               min={1}
               className="w-full rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-400"
-              placeholder="Beløp i kroner, f.eks. 1000000"
+              placeholder="Amount in NOK"
               value={loanAmount || ""}
               onChange={(e) => setLoanAmount(Number(e.target.value))}
             />
@@ -240,7 +250,7 @@ const DashbordComponent = () => {
             disabled={isWorking}
             className="rounded-lg bg-sky-400 px-5 py-2 text-sm font-semibold text-slate-950 shadow hover:bg-sky-300 disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-300"
           >
-            {isWorking ? "Lagrer..." : "Legg til lån"}
+            {isWorking ? "Lagrer..." : "Apply "}
           </button>
         </div>
       </section>
@@ -248,20 +258,25 @@ const DashbordComponent = () => {
 
       {/* START: kjøpte spillere */}
       <section className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 shadow-lg">
-        <h2 className="mb-4 text-lg font-semibold text-white">Din tropp</h2>
+        <h2 className="mb-4 text-lg font-semibold text-white">Your Squad</h2>
 
         {purchasedAthletes.length === 0 ? (
-          <p className="text-sm text-slate-400">Du har ikke kjøpt noen spillere enda.</p>
+          <p className="text-sm text-slate-400">
+            You haven't purchased any players yet
+          </p>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {purchasedAthletes.map((a) => (
-              <article key={a.id} className="flex flex-col justify-between rounded-lg border border-slate-800 bg-slate-950/70 p-4">
+              <article
+                key={a.id}
+                className="flex flex-col justify-between rounded-lg border border-slate-800 bg-slate-950/70 p-4"
+              >
                 <div>
                   {a.image ? (
                     <img
-                      src={`http://localhost:5163/images/${a.image}`}
+                      src={`http://localhost:5163/images/athletes/${a.image}`}
                       alt={`Bilde av ${a.name}`}
-                      className="h-40 w-full rounded-md bg-slate-900/40 object-cover"
+                      className="h-40 w-full rounded-md bg-slate-900/40 object-contain p-2"
                       loading="lazy"
                     />
                   ) : (
@@ -270,10 +285,15 @@ const DashbordComponent = () => {
                     </div>
                   )}
 
-                  <h3 className="mt-3 text-base font-semibold text-white">{a.name}</h3>
-                  <p className="text-xs text-slate-400">Kjønn: {a.gender}</p>
+                  <h3 className="mt-3 text-base font-semibold text-white">
+                    {a.name}
+                  </h3>
+                  <p className="text-xs text-slate-400">Gender: {a.gender}</p>
                   <p className="text-sm text-slate-200">
-                    Verdi: <span className="font-semibold text-emerald-300">{a.price.toLocaleString()} kr</span>
+                    Value:{" "}
+                    <span className="font-semibold text-emerald-300">
+                      {a.price.toLocaleString()} Kr
+                    </span>
                   </p>
                 </div>
 
@@ -283,7 +303,7 @@ const DashbordComponent = () => {
                     onClick={() => startSell(a.id)}
                     className="mt-4 rounded-lg bg-gradient-to-r from-rose-400 to-orange-300 px-4 py-2 text-sm font-semibold text-slate-950 hover:from-rose-300 hover:to-orange-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-rose-300"
                   >
-                    Selg spiller
+                    Sell Athlete
                   </button>
                 ) : (
                   <div className="mt-4 flex flex-col gap-2">
@@ -293,7 +313,7 @@ const DashbordComponent = () => {
                       disabled={isWorking}
                       className="rounded-lg bg-gradient-to-r from-rose-400 to-orange-300 px-4 py-2 text-sm font-semibold text-slate-950 hover:from-rose-300 hover:to-orange-200 disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-rose-300"
                     >
-                      {isWorking ? "Selger..." : `Bekreft salg (${a.name})`}
+                      {isWorking ? "Selger..." : `Confirm Sale (${a.name})`}
                     </button>
 
                     <button
@@ -301,7 +321,7 @@ const DashbordComponent = () => {
                       onClick={cancelPending}
                       className="rounded-lg border border-slate-700 bg-slate-950 px-4 py-2 text-sm font-semibold text-slate-100 hover:bg-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-slate-300"
                     >
-                      Avbryt
+                      Cancel
                     </button>
                   </div>
                 )}
@@ -314,20 +334,27 @@ const DashbordComponent = () => {
 
       {/* START: kjøp spillere */}
       <section className="rounded-xl border border-slate-800 bg-slate-900/60 p-6 shadow-lg">
-        <h2 className="mb-4 text-lg font-semibold text-white">Kjøp spillere</h2>
+        <h2 className="mb-4 text-lg font-semibold text-white">
+          Purchase Athletes
+        </h2>
 
         {availableAthletes.length === 0 ? (
-          <p className="text-sm text-slate-400">Ingen tilgjengelige spillere akkurat nå.</p>
+          <p className="text-sm text-slate-400">
+            Ingen tilgjengelige spillere akkurat nå.
+          </p>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {availableAthletes.map((a) => (
-              <article key={a.id} className="flex flex-col justify-between rounded-lg border border-slate-800 bg-slate-950/70 p-4">
+              <article
+                key={a.id}
+                className="flex flex-col justify-between rounded-lg border border-slate-800 bg-slate-950/70 p-4"
+              >
                 <div>
                   {a.image ? (
                     <img
-                      src={`http://localhost:5163/images/${a.image}`}
+                      src={`http://localhost:5163/images/athletes/${a.image}`}
                       alt={`Bilde av ${a.name}`}
-                      className="h-40 w-full rounded-md bg-slate-900/40 object-cover"
+                      className="h-40 w-full rounded-md bg-slate-900/40 object-contain p-2"
                       loading="lazy"
                     />
                   ) : (
@@ -336,10 +363,15 @@ const DashbordComponent = () => {
                     </div>
                   )}
 
-                  <h3 className="mt-3 text-base font-semibold text-white">{a.name}</h3>
-                  <p className="text-xs text-slate-400">Kjønn: {a.gender}</p>
+                  <h3 className="mt-3 text-base font-semibold text-white">
+                    {a.name}
+                  </h3>
+                  <p className="text-xs text-slate-400">Gender: {a.gender}</p>
                   <p className="text-sm text-slate-200">
-                    Pris: <span className="font-semibold text-emerald-300">{a.price.toLocaleString()} kr</span>
+                    Price:{" "}
+                    <span className="font-semibold text-emerald-300">
+                      {a.price.toLocaleString()} Kr
+                    </span>
                   </p>
                 </div>
 
@@ -349,7 +381,7 @@ const DashbordComponent = () => {
                     onClick={() => startBuy(a.id)}
                     className="mt-4 rounded-lg bg-gradient-to-r from-emerald-400 to-sky-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:from-emerald-300 hover:to-sky-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-300"
                   >
-                    Kjøp spiller
+                    Purchase !
                   </button>
                 ) : (
                   <div className="mt-4 flex flex-col gap-2">
@@ -359,7 +391,9 @@ const DashbordComponent = () => {
                       disabled={isWorking}
                       className="rounded-lg bg-gradient-to-r from-emerald-400 to-sky-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:from-emerald-300 hover:to-sky-300 disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-300"
                     >
-                      {isWorking ? "Kjøper..." : `Bekreft kjøp (${a.price.toLocaleString()} kr)`}
+                      {isWorking
+                        ? "Kjøper..."
+                        : `Confirm purchase (${a.price.toLocaleString()} Kr)`}
                     </button>
 
                     <button
@@ -367,7 +401,7 @@ const DashbordComponent = () => {
                       onClick={cancelPending}
                       className="rounded-lg border border-slate-700 bg-slate-950 px-4 py-2 text-sm font-semibold text-slate-100 hover:bg-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-slate-300"
                     >
-                      Avbryt
+                      Cancel purchase
                     </button>
                   </div>
                 )}

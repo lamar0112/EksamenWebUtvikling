@@ -17,7 +17,7 @@ const VenueItem = ({ venue, onDelete, onFeedback }: Props) => {
 
   const imageUrl = useMemo(() => {
     if (!venue.image) return "";
-    return `http://localhost:5163/images/${venue.image}`;
+    return `http://localhost:5163/images/venues/${venue.image}`;
   }, [venue.image]);
 
   // START: delete (two-step)
