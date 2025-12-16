@@ -13,7 +13,7 @@ type Props = {
 const VenueFormEdit = ({ venue, onChange, onSave, onCancel }: Props) => {
   const imageUrl = useMemo(() => {
     if (!venue.image) return "";
-    return `http://localhost:5163/images/${venue.image}`;
+    return `http://localhost:5163/images/venues/${venue.image}`;
   }, [venue.image]);
 
   // START: upload new image (optional)
@@ -43,7 +43,10 @@ const VenueFormEdit = ({ venue, onChange, onSave, onCancel }: Props) => {
       {/* START: fields */}
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-1">
-          <label htmlFor="venue-edit-name" className="block text-xs font-medium text-slate-400">
+          <label
+            htmlFor="venue-edit-name"
+            className="block text-xs font-medium text-slate-400"
+          >
             Venue name
           </label>
           <input
@@ -57,7 +60,10 @@ const VenueFormEdit = ({ venue, onChange, onSave, onCancel }: Props) => {
         </div>
 
         <div className="space-y-1">
-          <label htmlFor="venue-edit-capacity" className="block text-xs font-medium text-slate-400">
+          <label
+            htmlFor="venue-edit-capacity"
+            className="block text-xs font-medium text-slate-400"
+          >
             Capacity
           </label>
           <input
@@ -77,7 +83,10 @@ const VenueFormEdit = ({ venue, onChange, onSave, onCancel }: Props) => {
       {/* START: image upload + preview */}
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
-          <label htmlFor="venue-edit-image" className="block text-xs font-medium text-slate-400">
+          <label
+            htmlFor="venue-edit-image"
+            className="block text-xs font-medium text-slate-400"
+          >
             Replace image (optional)
           </label>
           <input
@@ -91,7 +100,9 @@ const VenueFormEdit = ({ venue, onChange, onSave, onCancel }: Props) => {
           {venue.image && (
             <p className="text-[11px] text-slate-400">
               Saved filename:{" "}
-              <span className="font-semibold text-slate-200">{venue.image}</span>
+              <span className="font-semibold text-slate-200">
+                {venue.image}
+              </span>
             </p>
           )}
         </div>

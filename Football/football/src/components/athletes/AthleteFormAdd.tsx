@@ -18,13 +18,15 @@ const AthleteFormAdd = () => {
 
   const [isUploading, setIsUploading] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState("");
-  const [feedbackType, setFeedbackType] = useState<"" | "success" | "error">("");
+  const [feedbackType, setFeedbackType] = useState<"" | "success" | "error">(
+    ""
+  );
   // SLUTT: state
 
   // START: preview url
   const imageUrl = useMemo(() => {
     if (!athlete.image) return "";
-    return `http://localhost:5163/images/${athlete.image}`;
+    return `http://localhost:5163/images/athletes/${athlete.image}`;
   }, [athlete.image]);
   // SLUTT: preview url
 
@@ -107,19 +109,24 @@ const AthleteFormAdd = () => {
       <div>
         <h2 className="text-lg font-semibold text-white">New athlete</h2>
         <p className="mt-1 text-sm text-slate-400">
-          Add player info and optionally upload an image.
+          Add athlete info and optionally upload an image.
         </p>
       </div>
       {/* SLUTT: heading */}
 
       {/* START: feedback */}
-      {feedbackType && <FeedbackMessage type={feedbackType} message={feedbackMessage} />}
+      {feedbackType && (
+        <FeedbackMessage type={feedbackType} message={feedbackMessage} />
+      )}
       {/* SLUTT: feedback */}
 
       {/* START: fields */}
       <div className="grid gap-4 md:grid-cols-3">
         <div className="space-y-1">
-          <label htmlFor="athlete-name" className="block text-xs font-medium text-slate-400">
+          <label
+            htmlFor="athlete-name"
+            className="block text-xs font-medium text-slate-400"
+          >
             Name
           </label>
           <input
@@ -133,7 +140,10 @@ const AthleteFormAdd = () => {
         </div>
 
         <div className="space-y-1">
-          <label htmlFor="athlete-gender" className="block text-xs font-medium text-slate-400">
+          <label
+            htmlFor="athlete-gender"
+            className="block text-xs font-medium text-slate-400"
+          >
             Gender
           </label>
           <input
@@ -147,7 +157,10 @@ const AthleteFormAdd = () => {
         </div>
 
         <div className="space-y-1">
-          <label htmlFor="athlete-price" className="block text-xs font-medium text-slate-400">
+          <label
+            htmlFor="athlete-price"
+            className="block text-xs font-medium text-slate-400"
+          >
             Price (NOK)
           </label>
           <input
@@ -167,7 +180,10 @@ const AthleteFormAdd = () => {
       {/* START: image upload + preview */}
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
-          <label htmlFor="athlete-image" className="block text-xs font-medium text-slate-400">
+          <label
+            htmlFor="athlete-image"
+            className="block text-xs font-medium text-slate-400"
+          >
             Upload image (optional)
           </label>
           <input
@@ -178,11 +194,16 @@ const AthleteFormAdd = () => {
             className="block w-full text-xs text-slate-200 file:mr-3 file:rounded-md file:border-0 file:bg-slate-800 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-slate-100 hover:file:bg-slate-700"
           />
 
-          {isUploading && <p className="text-[11px] text-sky-300">Uploading image...</p>}
+          {isUploading && (
+            <p className="text-[11px] text-sky-300">Uploading image...</p>
+          )}
 
           {athlete.image && (
             <p className="text-[11px] text-slate-400">
-              Saved filename: <span className="font-semibold text-slate-200">{athlete.image}</span>
+              Saved filename:{" "}
+              <span className="font-semibold text-slate-200">
+                {athlete.image}
+              </span>
             </p>
           )}
         </div>

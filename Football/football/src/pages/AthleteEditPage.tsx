@@ -51,7 +51,10 @@ const AthleteEditPage = () => {
   // SLUTT: load athlete by id
 
   // START: handle field changes (type-safe)
-  const handleChange = (field: AthleteField, value: string | number | boolean) => {
+  const handleChange = (
+    field: AthleteField,
+    value: string | number | boolean
+  ) => {
     if (!athlete) return;
 
     // START: pris skal alltid være number
@@ -146,11 +149,11 @@ const AthleteEditPage = () => {
         {/* START: header */}
         <header>
           <p className="mb-2 text-xs font-semibold uppercase tracking-[0.3em] text-sky-300">
-            Player Management
+            Athlete Management
           </p>
-          <h1 className="text-2xl font-bold text-white">Edit athlete</h1>
+          <h1 className="text-2xl font-bold text-white">Edit Athlete</h1>
           <p className="mt-1 text-sm text-slate-400">
-            Update information for this player.
+            Update information for this athlete.
           </p>
         </header>
         {/* SLUTT: header */}

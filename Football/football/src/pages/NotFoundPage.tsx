@@ -8,10 +8,10 @@ const NotFoundPage = () => {
         404
       </p>
 
-      <h1 className="mt-2 text-3xl font-bold text-white">Siden finnes ikke</h1>
+      <h1 className="mt-2 text-3xl font-bold text-white">Page not found</h1>
 
       <p className="mt-3 text-sm text-slate-300">
-        Sjekk adressen eller gå tilbake til hovedsidene.
+        Check the address or return to the homepage.
       </p>
 
       <div className="mt-6 flex justify-center gap-3">

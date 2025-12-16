@@ -9,11 +9,11 @@ const RegisterAthletePage = () => {
         {/* START: header */}
         <header className="space-y-2">
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-sky-300">
-            Player Management
+            Athlete Management
           </p>
           <h1 className="text-2xl font-bold text-white">Register athlete</h1>
           <p className="text-sm text-slate-400">
-            Add a new player to the market. Upload an image if available.
+            Add a new athlete to the market. Upload an image if available.
           </p>
 
           <Link

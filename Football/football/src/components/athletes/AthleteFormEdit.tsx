@@ -20,7 +20,7 @@ const AthleteFormEdit = ({ athlete, onChange, onSave, onCancel }: Props) => {
   // START: derived image url (preview)
   const imageUrl = useMemo(() => {
     if (!athlete.image) return "";
-    return `http://localhost:5163/images/${athlete.image}`;
+    return `http://localhost:5163/images/athletes/${athlete.image}`;
   }, [athlete.image]);
   // SLUTT: derived image url
 
@@ -112,7 +112,9 @@ const AthleteFormEdit = ({ athlete, onChange, onSave, onCancel }: Props) => {
           <>
             <p className="mt-1 text-[11px] text-slate-400">
               Filename:{" "}
-              <span className="font-semibold text-slate-200">{athlete.image}</span>
+              <span className="font-semibold text-slate-200">
+                {athlete.image}
+              </span>
             </p>
 
             {imageUrl && (

@@ -262,7 +262,7 @@ const DashbordComponent = () => {
 
         {purchasedAthletes.length === 0 ? (
           <p className="text-sm text-slate-400">
-            You haven't purchased any players yet
+            You haven't purchased any athlete yet
           </p>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
